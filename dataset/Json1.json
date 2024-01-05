@@ -1,0 +1,40 @@
+{
+	"name": "Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "data_master.json",
+				"folderPath": "my_dict",
+				"container": "historical"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"data_node": {
+					"type": "string"
+				},
+				"data_product": {
+					"type": "string"
+				},
+				"data_table": {
+					"type": "string"
+				},
+				"record_type": {
+					"type": "string"
+				},
+				"container": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
