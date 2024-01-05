@@ -136,40 +136,7 @@
 					"items": {
 						"value": "@variables('config_names')",
 						"type": "Expression"
-					},
-					"activities": [
-						{
-							"name": "Notebook1",
-							"type": "SynapseNotebook",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"notebook": {
-									"referenceName": "Notebook 1",
-									"type": "NotebookReference"
-								},
-								"parameters": {
-									"file_name": {
-										"value": {
-											"value": "@item()",
-											"type": "Expression"
-										},
-										"type": "string"
-									}
-								},
-								"snapshot": true,
-								"executorSize": "Small",
-								"driverSize": "Small"
-							}
-						}
-					]
+					}
 				}
 			},
 			{
