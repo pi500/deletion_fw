@@ -145,11 +145,17 @@
 					"data_master.json",
 					"delete_master.json"
 				]
+			},
+			"data": {
+				"type": "string"
 			}
 		},
 		"variables": {
 			"config_names": {
 				"type": "Array"
+			},
+			"data": {
+				"type": "String"
 			}
 		},
 		"annotations": [],
