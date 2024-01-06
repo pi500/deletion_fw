@@ -136,6 +136,91 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Get Metadata_new",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Json2",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "JsonReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ForEach2",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata_new",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata_new').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "my_notebook",
+							"type": "SynapseNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebook": {
+									"referenceName": "Notebook 2",
+									"type": "NotebookReference"
+								},
+								"parameters": {
+									"file_name": {
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"type": "string"
+									}
+								},
+								"snapshot": true,
+								"sparkPool": {
+									"referenceName": "mypool",
+									"type": "BigDataPoolReference"
+								},
+								"executorSize": "Small",
+								"driverSize": "Small"
+							}
+						}
+					]
+				}
 			}
 		],
 		"parameters": {
