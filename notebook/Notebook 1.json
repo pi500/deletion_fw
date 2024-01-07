@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c17b4184-f74e-4d66-b353-1ab530304f78"
+				"spark.autotune.trackingId": "78cf2be6-0062-4a76-87d1-343e374b00de"
 			}
 		},
 		"metadata": {
@@ -59,7 +59,7 @@
 					"json_array = \"[\" + ','.join(json_rdd.collect()) + \"]\"\r\n",
 					"\r\n",
 					"#print(json_array)\r\n",
-					"modified_string = json_array[4:-4]\r\n",
+					"modified_string = json_array[4:-5]\r\n",
 					"#print(modified_string)\r\n",
 					"#if ',},,{,' in modified_string:\r\n",
 					"modified_string = modified_string.replace(',},,{,', ']')\r\n",
@@ -77,6 +77,8 @@
 					"print(len(split_string))\r\n",
 					"\r\n",
 					"print(split_string)\r\n",
+					"for i in split_string:\r\n",
+					"    print(i)\r\n",
 					"\r\n",
 					"\r\n",
 					"\r\n",
@@ -89,7 +91,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 74
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -105,8 +107,7 @@
 					}
 				},
 				"source": [
-					"import pandas as pd\r\n",
-					"from itertools import chain\r\n",
+					"\r\n",
 					"list_of_dicts = []\r\n",
 					"for string_elem in split_string:\r\n",
 					"    # Assuming the strings represent key-value pairs separated by commas\r\n",
@@ -130,7 +131,10 @@
 					"            dictionary[key] = value.replace('#', ',')\r\n",
 					"print(cleaned_list_of_dicts)\r\n",
 					"\r\n",
-					"joined_dicts = [dict(sum([list(d.items()) for d in cleaned_list_of_dicts[i:i+6]], [])) for i in range(0, len(cleaned_list_of_dicts), 6)]\r\n",
+					"all_keys = set().union(*(d.keys() for d in cleaned_list_of_dicts))\r\n",
+					"count_key = len(all_keys)\r\n",
+					"\r\n",
+					"joined_dicts = [dict(sum([list(d.items()) for d in cleaned_list_of_dicts[i:i+count_key]], [])) for i in range(0, len(cleaned_list_of_dicts), count_key)]\r\n",
 					"print(joined_dicts)\r\n",
 					"\r\n",
 					"#chunked_data = [cleaned_list_of_dicts[i:i + 5] for i in range(0, len(cleaned_list_of_dicts), 5)]\r\n",
@@ -153,7 +157,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 77
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
