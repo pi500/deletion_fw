@@ -1,0 +1,281 @@
+{
+	"name": "Notebook 1",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "mypool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "c17b4184-f74e-4d66-b353-1ab530304f78"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/mygrp/providers/Microsoft.Synapse/workspaces/workspace7971/bigDataPools/mypool",
+				"name": "mypool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				}
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"import re\r\n",
+					"file_path = f\"abfss://historical@myadls8434.dfs.core.windows.net/new/data_master.json\"\r\n",
+					"# Read JSON file into an RDD\r\n",
+					"json_rdd = sc.textFile(file_path)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Combine JSON strings into a single JSON object or array\r\n",
+					"# If an array is needed:\r\n",
+					"json_array = \"[\" + ','.join(json_rdd.collect()) + \"]\"\r\n",
+					"\r\n",
+					"#print(json_array)\r\n",
+					"modified_string = json_array[4:-4]\r\n",
+					"#print(modified_string)\r\n",
+					"#if ',},,{,' in modified_string:\r\n",
+					"modified_string = modified_string.replace(',},,{,', ']')\r\n",
+					"#print(modified_string)\r\n",
+					"modified_string = modified_string.replace(',,', ']')\r\n",
+					"print(modified_string)\r\n",
+					"modified_string = modified_string.replace(',', '#')\r\n",
+					"print(modified_string)\r\n",
+					"#modified_string = '{'+modified_string+'}'\r\n",
+					"#print(modified_string)\r\n",
+					"\r\n",
+					"split_string = modified_string.split(']')\r\n",
+					"\r\n",
+					"\r\n",
+					"print(len(split_string))\r\n",
+					"\r\n",
+					"print(split_string)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 74
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pandas as pd\r\n",
+					"from itertools import chain\r\n",
+					"list_of_dicts = []\r\n",
+					"for string_elem in split_string:\r\n",
+					"    # Assuming the strings represent key-value pairs separated by commas\r\n",
+					"    dict_elem = dict(item.split(':') for item in string_elem.split(','))\r\n",
+					"    list_of_dicts.append(dict_elem)\r\n",
+					"\r\n",
+					"#print(list_of_dicts)\r\n",
+					"\r\n",
+					"# Display the list of dictionaries\r\n",
+					"#for d in list_of_dicts:\r\n",
+					"    #print(d)\r\n",
+					"\r\n",
+					"cleaned_list_of_dicts = []\r\n",
+					"for d in list_of_dicts:\r\n",
+					"    cleaned_dict = {re.sub(r'[\"\\']', '', k): re.sub(r'[\"\\']', '', v) for k, v in d.items()}\r\n",
+					"    cleaned_list_of_dicts.append(cleaned_dict)\r\n",
+					"#print(cleaned_list_of_dicts)\r\n",
+					"for dictionary in cleaned_list_of_dicts:\r\n",
+					"    for key, value in dictionary.items():\r\n",
+					"       if '#' in value:\r\n",
+					"            dictionary[key] = value.replace('#', ',')\r\n",
+					"print(cleaned_list_of_dicts)\r\n",
+					"\r\n",
+					"joined_dicts = [dict(sum([list(d.items()) for d in cleaned_list_of_dicts[i:i+6]], [])) for i in range(0, len(cleaned_list_of_dicts), 6)]\r\n",
+					"print(joined_dicts)\r\n",
+					"\r\n",
+					"#chunked_data = [cleaned_list_of_dicts[i:i + 5] for i in range(0, len(cleaned_list_of_dicts), 5)]\r\n",
+					"#print(chunked_data)\r\n",
+					"\r\n",
+					"\r\n",
+					"# Convert the list of dictionaries to PySpark DataFrame\r\n",
+					"df_spark = spark.createDataFrame(joined_dicts)\r\n",
+					"\r\n",
+					"# Show the PySpark DataFrame\r\n",
+					"df_spark.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"#df = spark.createDataFrame(cleaned_list_of_dicts)\r\n",
+					"#df = spark.createDataFrame(pd.DataFrame(cleaned_list_of_dicts))\r\n",
+					"\r\n",
+					"# Show the DataFrame\r\n",
+					"#df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 77
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"my_list = ['apple', 'banana', 'orange']\r\n",
+					"\r\n",
+					"# Join the elements of the list using ']' as a separator\r\n",
+					"result = ']' + ']['.join(my_list) + ']'\r\n",
+					"\r\n",
+					"print(result)\r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					" #!/usr/bin/env python\r\n",
+					"# coding: utf-8\r\n",
+					"\r\n",
+					"# ## Notebook 2\r\n",
+					"# \r\n",
+					"# \r\n",
+					"# \r\n",
+					"\r\n",
+					"# In[2]:\r\n",
+					"\r\n",
+					"\r\n",
+					"import re\r\n",
+					"\r\n",
+					"\r\n",
+					"# In[3]:\r\n",
+					"\r\n",
+					"\r\n",
+					"import re\r\n",
+					"file_path = f\"abfss://historical@myadls8434.dfs.core.windows.net/new/delete_master.json\"\r\n",
+					"# Read JSON file into an RDD\r\n",
+					"json_rdd = sc.textFile(file_path)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Combine JSON strings into a single JSON object or array\r\n",
+					"# If an array is needed:\r\n",
+					"json_array = \"[\" + ','.join(json_rdd.collect()) + \"]\"\r\n",
+					"#print(json_array)\r\n",
+					"modified_string = json_array[4:-4]\r\n",
+					"modified_string = modified_string.replace(',},,{,', '}{')\r\n",
+					"\r\n",
+					"modified_string = modified_string.replace(',,', ',')\r\n",
+					"\r\n",
+					"#modified_string = '{'+modified_string+'}'\r\n",
+					"#print(modified_string)\r\n",
+					"split_string = modified_string.split('}{')\r\n",
+					"#print(split_string)\r\n",
+					"\r\n",
+					"list_of_dicts = []\r\n",
+					"for string_elem in split_string:\r\n",
+					"    # Assuming the strings represent key-value pairs separated by commas\r\n",
+					"    dict_elem = dict(item.split(':') for item in string_elem.split(','))\r\n",
+					"    list_of_dicts.append(dict_elem)\r\n",
+					"\r\n",
+					"# Display the list of dictionaries\r\n",
+					"#for d in list_of_dicts:\r\n",
+					"    #print(d)\r\n",
+					"\r\n",
+					"#cleaned_list_of_dicts = [{k.strip('\"'): v.strip('\"') for k, v in d.items()} for d in list_of_dicts]\r\n",
+					"cleaned_list_of_dicts = []\r\n",
+					"for d in list_of_dicts:\r\n",
+					"    cleaned_dict = {re.sub(r'[\"\\']', '', k): re.sub(r'[\"\\']', '', v) for k, v in d.items()}\r\n",
+					"    cleaned_list_of_dicts.append(cleaned_dict)\r\n",
+					"print(cleaned_list_of_dicts)\r\n",
+					"\r\n",
+					"df = spark.createDataFrame(cleaned_list_of_dicts)\r\n",
+					"\r\n",
+					"# Show the DataFrame\r\n",
+					"df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
