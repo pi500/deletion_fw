@@ -1,0 +1,901 @@
+{
+	"name": "Notebook 2",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "mypool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "a4299e78-0510-4201-9e36-5d8cd16c4b75"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/mygrp/providers/Microsoft.Synapse/workspaces/workspace7971/bigDataPools/mypool",
+				"name": "mypool",
+				"type": "Spark",
+				"endpoint": "https://workspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"%pip install azure-storage-blob azure-storage-file-datalake\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql import SparkSession\r\n",
+					"\r\n",
+					"spark = SparkSession.builder.appName(\"ReadAzureTable\").getOrCreate()\r\n",
+					"\r\n",
+					"# Azure Storage account configuration\r\n",
+					"azure_storage_account_name = \"myadls8434\"\r\n",
+					"azure_storage_account_access_key = \"aDE/qAvbfsxmihNzvqc16Gsc2dp72/iNT0eeCjoPd61nn6CGs8F85w3IwxNYMoKg//szbHLmQD0Q+ASt00aiaA==\"\r\n",
+					"azure_table_name = \"mytable123\"\r\n",
+					"\r\n",
+					"# Configuration to connect to Azure Table Storage\r\n",
+					"spark.conf.set(\r\n",
+					"    \"spark.cosmos.accountEndpoint\",\r\n",
+					"    f\"https://{azure_storage_account_name}.table.core.windows.net/\"\r\n",
+					")\r\n",
+					"spark.conf.set(\r\n",
+					"    f\"spark.cosmos.accountKey.{azure_storage_account_name}\",\r\n",
+					"    azure_storage_account_access_key\r\n",
+					")\r\n",
+					"\r\n",
+					"# Read data from Azure Table\r\n",
+					"df = spark.read.format(\"cosmos.olap\") \\\r\n",
+					"    .option(\"spark.synapse.linkedService\", azure_storage_account_name) \\\r\n",
+					"    .option(\"spark.cosmos.container\", azure_table_name) \\\r\n",
+					"    .load()\r\n",
+					"\r\n",
+					"# Show the schema and data\r\n",
+					"df.printSchema()\r\n",
+					"df.show()\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-storage-blob\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-storage-blob"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Import necessary libraries\r\n",
+					"from azure.storage.blob import BlobServiceClient\r\n",
+					"from azure.core.exceptions import ResourceExistsError\r\n",
+					"\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'aDE/qAvbfsxmihNzvqc16Gsc2dp72/iNT0eeCjoPd61nn6CGs8F85w3IwxNYMoKg//szbHLmQD0Q+ASt00aiaA=='\r\n",
+					"table_name = 'mytable123'\r\n",
+					"partition_key = 'Sample_Partition'\r\n",
+					"row_key = '1'\r\n",
+					"\r\n",
+					"# Authenticate withL% the Azure Storage Account\r\n",
+					"blob_service_client = BlobServiceClient(account_url=f\"https://{account_name}.blob.core.windows.net\", credential=account_key)\r\n",
+					"\r\n",
+					"# Get a reference to your Azure Table (as blobs)\r\n",
+					"container_name = '<your_container_name>'\r\n",
+					"container_client = blob_service_client.get_container_client(container_name)\r\n",
+					"\r\n",
+					"# Create or get a reference to the Azure Table\r\n",
+					"table_client = blob_service_client.get_table_client(table_name)\r\n",
+					"\r\n",
+					"# Define your entity (data)\r\n",
+					"entity = {\r\n",
+					"    'PartitionKey': partition_key,\r\n",
+					"    'RowKey': row_key,\r\n",
+					"    'Name': 'John Doe',\r\n",
+					"    'Age': 30,\r\n",
+					"    'Email': 'john@example.com',\r\n",
+					"    'Location': 'Seattle',\r\n",
+					"    # Add other properties as needed\r\n",
+					"}\r\n",
+					"\r\n",
+					"try:\r\n",
+					"    # Insert the entity into the Azure Table\r\n",
+					"    table_client.upsert_entity(entity=entity)\r\n",
+					"    print(\"Entity inserted successfully.\")\r\n",
+					"\r\n",
+					"except ResourceExistsError:\r\n",
+					"    print(\"Entity already exists.\")\r\n",
+					""
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pip install azure.storage.tables\r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.storage.tables import TableServiceClient\r\n",
+					"\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'aDE/qAvbfsxmihNzvqc16Gsc2dp72/iNT0eeCjoPd61nn6CGs8F85w3IwxNYMoKg//szbHLmQD0Q+ASt00aiaA=='\r\n",
+					"table_name = 'mytable123'\r\n",
+					"partition_key = 'Sample_Partition'\r\n",
+					"row_key = '1'\r\n",
+					"\r\n",
+					"# Authenticate with the Azure Storage Account for Table operations\r\n",
+					"table_service_client = TableServiceClient(account_url=f\"https://{account_name}.table.core.windows.net\", credential=account_key)\r\n",
+					"\r\n",
+					"# Get a reference to your Azure Table\r\n",
+					"table_client = table_service_client.get_table_client(table_name)\r\n",
+					"\r\n",
+					"# Define your entity (data)\r\n",
+					"entity = {\r\n",
+					"    'PartitionKey': partition_key,\r\n",
+					"    'RowKey': row_key,\r\n",
+					"    'Name': 'John Doe',\r\n",
+					"    'Age': 30,\r\n",
+					"    'Email': 'john@example.com',\r\n",
+					"    'Location': 'Seattle',\r\n",
+					"    # Add other properties as needed\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Insert the entity into the Azure Table\r\n",
+					"table_client.upsert_entity(entity=entity)\r\n",
+					"print(\"Entity inserted successfully.\")\r\n",
+					""
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.cosmosdb.table.tableservice import TableService\r\n",
+					"from azure.cosmosdb.table.models import Entity\r\n",
+					"\r\n",
+					"\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'aDE/qAvbfsxmihNzvqc16Gsc2dp72/iNT0eeCjoPd61nn6CGs8F85w3IwxNYMoKg//szbHLmQD0Q+ASt00aiaA=='\r\n",
+					"table_name = 'mytable123'\r\n",
+					"partition_key = 'Sample_Partition'\r\n",
+					"row_key = '1'\r\n",
+					"\r\n",
+					"# Authenticate with the Azure Storage Account for Table operations\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"\r\n",
+					"# Define your entity (data)\r\n",
+					"entity = {\r\n",
+					"    'PartitionKey': partition_key,\r\n",
+					"    'RowKey': row_key,\r\n",
+					"    'Name': 'John Doe',\r\n",
+					"    'Age': 30,\r\n",
+					"    'Email': 'john@example.com',\r\n",
+					"    'Location': 'Seattle',\r\n",
+					"    # Add other properties as needed\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Create an Entity object and insert it into the Azure Table\r\n",
+					"table_service.insert_entity(table_name, entity)\r\n",
+					"print(\"Entity inserted successfully.\")\r\n",
+					""
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import datetime\r\n",
+					"import hashlib\r\n",
+					"import hmac\r\n",
+					"import base64\r\n",
+					"\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'aDE/qAvbfsxmihNzvqc16Gsc2dp72/iNT0eeCjoPd61nn6CGs8F85w3IwxNYMoKg//szbHLmQD0Q+ASt00aiaA=='\r\n",
+					"table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Define your entity (data)\r\n",
+					"partition_key = 'Sample_Partition'\r\n",
+					"row_key = '1'\r\n",
+					"entity = {\r\n",
+					"    'PartitionKey': partition_key,\r\n",
+					"    'RowKey': row_key,\r\n",
+					"    'Name': 'John Doe',\r\n",
+					"    'Age': 30,\r\n",
+					"    'Email': 'john@example.com',\r\n",
+					"    'Location': 'Seattle',\r\n",
+					"    # Add other properties as needed\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Create entity payload\r\n",
+					"entity_payload = \"\".join([\r\n",
+					"    f\"<d:{key}>{value}</d:{key}>\" for key, value in entity.items()\r\n",
+					"])\"\r\n",
+					"\r\n",
+					"# Define request headers and URL\r\n",
+					"date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')\r\n",
+					"content_type = 'application/atom+xml'\r\n",
+					"resource_path = f\"/{account_name}/{table_name}\"\r\n",
+					"url = f\"https://{account_name}.table.core.windows.net/')\"\r\n",
+					"\r\n",
+					"# Create request headers with necessary auth headers\r\n",
+					"headers = {\r\n",
+					"    'x-ms-date': date,\r\n",
+					"    'x-ms-version': '2019-12-12',\r\n",
+					"    'DataServiceVersion': '3.0;NetFx',\r\n",
+					"    'MaxDataServiceVersion': '3.0;NetFx',\r\n",
+					"    'Content-Type': content_type,\r\n",
+					"    'Content-Length': str(len(entity_payload)),\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Generate and add authorization header\r\n",
+					"string_to_sign = f\"{date}\\n/{account_name}/{resource_path}\"\r\n",
+					"signed_string = base64.b64encode(\r\n",
+					"    hmac.new(base64.b64decode(account_key), string_to_sign.encode('utf-8'), hashlib.sha256).digest()).decode()\r\n",
+					"authorization_header = f\"SharedKeyLite {account_name}:{signed_string}\"\r\n",
+					"headers['Authorization'] = authorization_header\r\n",
+					"\r\n",
+					"# Perform the insert request\r\n",
+					"response = requests.post(url, headers=headers, data=entity_payload)\r\n",
+					"entity_data = response.json()\r\n",
+					"print(entity_data)\r\n",
+					"#if response.status_code == 201:\r\n",
+					"    #print(\"Entity inserted successfully.\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.storage.table import TableService\r\n",
+					"import pandas as pd\r\n",
+					"\r\n",
+					"\r\n",
+					"account_name = '<myadls8434>'\r\n",
+					"account_key = '<aDE/qAvbfsxmihNzvqc16Gsc2dp72/iNT0eeCjoPd61nn6CGs8F85w3IwxNYMoKg//szbHLmQD0Q+ASt00aiaA==>'\r\n",
+					"table_name = '<mytable123>'\r\n",
+					"\r\n",
+					"# Authenticate with the Azure Storage Account for Table operations\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"\r\n",
+					"# Define your query (for example, getting all entities)\r\n",
+					"entities = table_service.query_entities(table_name)\r\n",
+					"\r\n",
+					"# Convert the queried entities to a list of dictionaries\r\n",
+					"entities_list = [entity for entity in entities]\r\n",
+					"\r\n",
+					"# Convert the list of dictionaries to a Pandas DataFrame for easier manipulation\r\n",
+					"df = pd.DataFrame(entities_list)\r\n",
+					"\r\n",
+					"# Display the DataFrame with the queried data\r\n",
+					"df.head()\r\n",
+					""
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.storage.table import TableService\r\n",
+					"\r\n",
+					"account_name = 'myaccount'\r\n",
+					"account_key = 'myaccountkey'\r\n",
+					"table_name = 'mytable'\r\n",
+					"\r\n",
+					"# Authenticate with the Azure Storage Account for Table operations\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"\r\n",
+					"# Define your query (for example, getting all entities)\r\n",
+					"entities = table_service.query_entities(table_name)\r\n",
+					"\r\n",
+					"# Display fetched entities\r\n",
+					"for entity in entities:\r\n",
+					"    print(entity)\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pip install --upgrade azure-storage\r\n",
+					""
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import json\r\n",
+					"\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'z2N249esc4bSp4bT5DztOnYcwARvEMgybHb1/oOtUsCtX8IW+64T5l2ip+WvWcjXsLEgtDOEJtm0+AStbOkngg=='\r\n",
+					"table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Define the endpoint for the Azure Table Storage REST API\r\n",
+					"url = f\"https://{account_name}.table.core.windows.net/{table_name}\"\r\n",
+					"\r\n",
+					"# Define request headers\r\n",
+					"headers = {\r\n",
+					"    'Accept': 'application/json;odata=nometadata',\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2019-12-12'\r\n",
+					"    \r\n",
+					"}\r\n",
+					"\r\n",
+					"# Perform a GET request to fetch entities\r\n",
+					"response = requests.get(url, headers=headers, auth=(account_name, account_key))\r\n",
+					"\r\n",
+					"if response.status_code == 200:\r\n",
+					"    entities = response.json()['value']\r\n",
+					"    \r\n",
+					"    # Display the fetched entities\r\n",
+					"    for entity in entities:\r\n",
+					"        print(entity)\r\n",
+					"else:\r\n",
+					"    print(f\"Failed to fetch entities. Status code: {response.status_code}\")\r\n",
+					""
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.storage.table import TableService, Entity\r\n",
+					"\r\n",
+					"# Set the storage account connection string\r\n",
+					"storage_account_connection_string = 'DefaultEndpointsProtocol=https;AccountName=myadls8434;AccountKey=z2N249esc4bSp4bT5DztOnYcwARvEMgybHb1/oOtUsCtX8IW+64T5l2ip+WvWcjXsLEgtDOEJtm0+AStbOkngg=='\r\n",
+					"\r\n",
+					"# Create a TableService object\r\n",
+					"table_service = TableService(storage_account_connection_string)\r\n",
+					"\r\n",
+					"# Create a table\r\n",
+					"table_name = 'mytable123'\r\n",
+					"table_service.create_table(table_name)\r\n",
+					"\r\n",
+					"# Insert an entity\r\n",
+					"entity = Entity()\r\n",
+					"entity['PartitionKey'] = 'mypartitionkey'\r\n",
+					"entity['RowKey'] = 'myrowkey'\r\n",
+					"entity['myproperty'] = 'myvalue'\r\n",
+					"table_service.insert_entity(table_name, entity)\r\n",
+					"\r\n",
+					"# Query the table\r\n",
+					"query = TableService.generate_query_expression('PartitionKey eq ?', ['mypartitionkey'])\r\n",
+					"entities = table_service.query_entities(table_name, query)\r\n",
+					"\r\n",
+					"# Delete an entity\r\n",
+					"table_service.delete_entity(table_name, entity)\r\n",
+					"\r\n",
+					"# Delete the table\r\n",
+					"table_service.delete_table(table_name)"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import json\r\n",
+					"import hashlib\r\n",
+					"import hmac\r\n",
+					"import base64\r\n",
+					"from datetime import datetime, timezone\r\n",
+					"\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'z2N249esc4bSp4bT5DztOnYcwARvEMgybHb1/oOtUsCtX8IW+64T5l2ip+WvWcjXsLEgtDOEJtm0+AStbOkngg=='\r\n",
+					"table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Define the endpoint for the Azure Table Storage REST API\r\n",
+					"url = f\"https://{account_name}.table.core.windows.net/{table_name}\"\r\n",
+					"\r\n",
+					"# Define request headers\r\n",
+					"headers = {\r\n",
+					"    'Accept': 'application/json;odata=nometadata',\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2019-12-12'\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Generate request date and authorization header\r\n",
+					"request_date = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')\r\n",
+					"string_to_sign = f\"{request_date}\\n/{account_name}/{table_name}\"\r\n",
+					"signature = base64.b64encode(hmac.new(base64.b64decode(account_key), string_to_sign.encode('utf-8'), hashlib.sha256).digest()).decode()\r\n",
+					"authorization_header = f\"SharedKeyLite {account_name}:{signature}\"\r\n",
+					"headers['Authorization'] = authorization_header\r\n",
+					"headers['Date'] = request_date\r\n",
+					"\r\n",
+					"# Perform a GET request to fetch entities\r\n",
+					"response = requests.get(url, headers=headers)\r\n",
+					"\r\n",
+					"if response.status_code == 200:\r\n",
+					"    entities = response.json()['value']\r\n",
+					"    \r\n",
+					"    # Display the fetched entities\r\n",
+					"    for entity in entities:\r\n",
+					"        print(entity)\r\n",
+					"else:\r\n",
+					"    print(f\"Failed to fetch entities. Status code: {response.status_code}\")\r\n",
+					""
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"\r\n",
+					"# Create a ManagedIdentityCredential instance\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"\r\n",
+					"# Get the access token using the Managed Identity\r\n",
+					"token = credential.get_token('https://storage.azure.com/.default')\r\n",
+					"\r\n",
+					"# Azure Table Storage details\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Define the endpoint for Azure Table Storage\r\n",
+					"url = f\"https://{account_name}.table.core.windows.net/{table_name}\"\r\n",
+					"\r\n",
+					"# Define request headers with the obtained token\r\n",
+					"headers = {\r\n",
+					"    'Accept': 'application/json;odata=nometadata',\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2019-12-12',\r\n",
+					"    'Authorization': f\"Bearer {token.token}\",\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Perform a GET request to fetch entities\r\n",
+					"response = requests.get(url, headers=headers)\r\n",
+					"\r\n",
+					"if response.status_code == 200:\r\n",
+					"    entities = response.json()['value']\r\n",
+					"    \r\n",
+					"    # Display the fetched entities\r\n",
+					"    for entity in entities:\r\n",
+					"        print(entity)\r\n",
+					"else:\r\n",
+					"    print(f\"Failed to fetch entities. Status code: {response.status_code}\")\r\n",
+					""
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-data-tables\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.identity import DefaultAzureCredential\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"\r\n",
+					"table_account_name = 'mytable123'\r\n",
+					"table_name = 'myadls8434'\r\n",
+					"\r\n",
+					"# Create a DefaultAzureCredential instance\r\n",
+					"credential = DefaultAzureCredential()\r\n",
+					"print(credential)\r\n",
+					"\r\n",
+					"# Create a TableServiceClient using Managed Identity credential\r\n",
+					"table_service_client = TableServiceClient(endpoint=f\"https://{table_account_name}.table.core.windows.net\", credential=credential)\r\n",
+					"\r\n",
+					"# Get a reference to your table\r\n",
+					"table_client = table_service_client.get_table_client(table_name)\r\n",
+					"\r\n",
+					"# Query entities or perform other operations as needed\r\n",
+					"entities = table_client.list_entities()\r\n",
+					"\r\n",
+					"# Display fetched entities\r\n",
+					"for entity in entities:\r\n",
+					"    print(entity)\r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"\r\n",
+					"table_account_name = 'mytable123'\r\n",
+					"table_name = 'myadls8434'\r\n",
+					"\r\n",
+					"# Create a ManagedIdentityCredential instance\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"\r\n",
+					"# Create a TableServiceClient using Managed Identity credential\r\n",
+					"table_service_client = TableServiceClient(endpoint=f\"https://{table_account_name}.table.core.windows.net\", credential=credential)\r\n",
+					"\r\n",
+					"# Get a reference to your table\r\n",
+					"table_client = table_service_client.get_table_client(table_name)\r\n",
+					"\r\n",
+					"# Query entities or perform other operations as needed\r\n",
+					"entities = table_client.list_entities()\r\n",
+					"\r\n",
+					"# Display fetched entities\r\n",
+					"for entity in entities:\r\n",
+					"    print(entity)\r\n",
+					""
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"\r\n",
+					"table_account_name = 'mytable123'\r\n",
+					"table_name = 'myadls8434'\r\n",
+					"\r\n",
+					"# Create a ManagedIdentityCredential instance\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"print(credential)"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.identity import DefaultAzureCredential\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"\r\n",
+					"table_account_name = 'myadls8434'\r\n",
+					"table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Create a DefaultAzureCredential instance\r\n",
+					"credential = DefaultAzureCredential()\r\n",
+					"\r\n",
+					"# Create a TableServiceClient using Managed Identity credential\r\n",
+					"table_service_client = TableServiceClient(endpoint=f\"https://{table_account_name}.table.core.windows.net\", credential=credential)\r\n",
+					"\r\n",
+					"# Get a reference to your table\r\n",
+					"table_client = table_service_client.get_table_client(table_name)\r\n",
+					"\r\n",
+					"# Query entities or perform other operations as needed\r\n",
+					"entities = table_client.list_entities()\r\n",
+					"\r\n",
+					"# Display fetched entities\r\n",
+					"for entity in entities:\r\n",
+					"    print(entity)\r\n",
+					""
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-identity"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"\r\n",
+					"# Create a ManagedIdentityCredential instance\r\n",
+					"credential = ManagedIdentityCredential(client_id=\"833423b8-e98e-45d4-b7f9-74ee81fc209f\")\r\n",
+					"\r\n",
+					"table_account_name = 'myadls8434'\r\n",
+					"table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Create a TableServiceClient using Managed Identity credential\r\n",
+					"table_service_client = TableServiceClient(endpoint=f\"https://{table_account_name}.table.core.windows.net\", credential=credential)\r\n",
+					"\r\n",
+					"# Get a reference to your table\r\n",
+					"table_client = table_service_client.get_table_client(table_name)\r\n",
+					"\r\n",
+					"# Query entities or perform other operations as needed\r\n",
+					"entities = table_client.list_entities()\r\n",
+					"\r\n",
+					"# Display fetched entities\r\n",
+					"for entity in entities:\r\n",
+					"    print(entity)\r\n",
+					""
+				],
+				"execution_count": 29
+			}
+		]
+	}
+}

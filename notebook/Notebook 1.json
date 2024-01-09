@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "78cf2be6-0062-4a76-87d1-343e374b00de"
+				"spark.autotune.trackingId": "d292af4f-b724-407a-b7a9-9a73321b035e"
 			}
 		},
 		"metadata": {
@@ -33,10 +33,17 @@
 			"a365ComputeOptions": {
 				"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/mygrp/providers/Microsoft.Synapse/workspaces/workspace7971/bigDataPools/mypool",
 				"name": "mypool",
+				"type": "Spark",
+				"endpoint": "https://workspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -276,7 +283,7 @@
 					}
 				},
 				"source": [
-					""
+					"print('jbb')"
 				],
 				"execution_count": null
 			}
