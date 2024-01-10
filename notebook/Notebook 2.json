@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "a4299e78-0510-4201-9e36-5d8cd16c4b75"
+				"spark.autotune.trackingId": "ddb5f300-2d97-445e-a947-a077c98c3dc5"
 			}
 		},
 		"metadata": {
@@ -33,17 +33,10 @@
 			"a365ComputeOptions": {
 				"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/mygrp/providers/Microsoft.Synapse/workspaces/workspace7971/bigDataPools/mypool",
 				"name": "mypool",
-				"type": "Spark",
-				"endpoint": "https://workspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				},
-				"sparkVersion": "3.3",
-				"nodeCount": 10,
-				"cores": 4,
-				"memory": 28,
-				"automaticScaleJobs": false
+				}
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -54,7 +47,79 @@
 					"%pip install azure-storage-blob azure-storage-file-datalake\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-cosmosdb-table"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-identity"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-data-tables"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -518,7 +583,7 @@
 					"    print(f\"Failed to fetch entities. Status code: {response.status_code}\")\r\n",
 					""
 				],
-				"execution_count": 15
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -621,7 +686,7 @@
 					"    print(f\"Failed to fetch entities. Status code: {response.status_code}\")\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -895,6 +960,589 @@
 					""
 				],
 				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.cosmosdb.table.tableservice import TableService\r\n",
+					"from azure.cosmosdb.table.models import Entity\r\n",
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'z2N249esc4bSp4bT5DztOnYcwARvEMgybHb1/oOtUsCtX8IW+64T5l2ip+WvWcjXsLEgtDOEJtm0+AStbOkngg=='\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Define the entity to update\r\n",
+					"entity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '2',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'to be deleted'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '1',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '3',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'found'\r\n",
+					"}]\r\n",
+					"\r\n",
+					"# Merge the entity (update if exists or create if not)\r\n",
+					"for i in entity:    \r\n",
+					"    table_service.insert_or_merge_entity(table_name, i)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Show the DataFrame\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 107
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+					"\r\n",
+					"# Extract and print the properties (column names) from the sample entities\r\n",
+					"if all_entities:\r\n",
+					"    properties = set()\r\n",
+					"    for entity in all_entities:\r\n",
+					"        properties.update(entity.keys())\r\n",
+					"\r\n",
+					"    print(\"Properties (Column Names):\")\r\n",
+					"    print(properties)\r\n",
+					"else:\r\n",
+					"    print(\"No entities found in the table.\")"
+				],
+				"execution_count": 108
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.types import StructType, StructField, StringType\r\n",
+					"my_list = list(properties)\r\n",
+					"print(my_list)\r\n",
+					"schema = StructType([\r\n",
+					"    StructField(column, StringType(), True) for column in my_list\r\n",
+					"])\r\n",
+					"empty_df = spark.createDataFrame([], schema)\r\n",
+					"empty_df.show()"
+				],
+				"execution_count": 109
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"all_entities = table_service.query_entities(table_name)\r\n",
+					"entity_list = []\r\n",
+					"# Print or process the retrieved entities\r\n",
+					"for entity in all_entities:\r\n",
+					"    entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+					"    entity_list.append(entity_dict)\r\n",
+					"\r\n",
+					"df = spark.createDataFrame(entity_list)\r\n",
+					"\r\n",
+					"# Show the DataFrame\r\n",
+					"df.show()"
+				],
+				"execution_count": 110
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"'''query_filter = \"status eq 'not found'\"\r\n",
+					"\r\n",
+					"# Execute the query\r\n",
+					"query_result = table_service.query_entities(table_name, filter=query_filter)\r\n",
+					"\r\n",
+					"\r\n",
+					"for i in query_result:\r\n",
+					"    print('i is:',i)\r\n",
+					"    df = spark.createDataFrame(query_result)\r\n",
+					"    df.show(truncate=False)'''"
+				],
+				"execution_count": 98
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"'''partition_key = '10'\r\n",
+					"row_key = '1'\r\n",
+					"status = 'to be deleted'\r\n",
+					"\r\n",
+					"# Retrieve the entity that needs to be updated\r\n",
+					"entity = table_service.get_entity(partition_key,row_key)\r\n",
+					"\r\n",
+					"# Update the properties of the entity\r\n",
+					"entity['name'] = 'shounak'\r\n",
+					"\r\n",
+					"# Update the entity in Azure Table Storage\r\n",
+					"table_service.update_entity(table_name, entity)'''"
+				],
+				"execution_count": 99
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"filter_condition = \"status eq 'to be deleted'\"\r\n",
+					"\r\n",
+					"# Retrieve entities that match the filter condition\r\n",
+					"entities_to_update = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+					"\r\n",
+					"# Update the desired column in the matching entities\r\n",
+					"for entity in entities_to_update:\r\n",
+					"    entity['status'] = 'deleted'\r\n",
+					"    table_service.update_entity(table_name, entity)"
+				],
+				"execution_count": 111
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'z2N249esc4bSp4bT5DztOnYcwARvEMgybHb1/oOtUsCtX8IW+64T5l2ip+WvWcjXsLEgtDOEJtm0+AStbOkngg=='\r\n",
+					"my_table_name = 'mytable123'\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service_2 = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"\r\n",
+					"# Insert entities into Azure Table Storage\r\n",
+					""
+				],
+				"execution_count": 112
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df.show()"
+				],
+				"execution_count": 113
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Convert PySpark DataFrame to a list of dictionaries\r\n",
+					"data_to_insert = df.collect()\r\n",
+					"list_of_entities = []\r\n",
+					"#print(data_to_insert)\r\n",
+					"\r\n",
+					"for row in data_to_insert:\r\n",
+					"    # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+					"    entity = {\r\n",
+					"        'PartitionKey': row['PartitionKey'],\r\n",
+					"        'RowKey': row['RowKey'],\r\n",
+					"        'Timestamp': row['Timestamp'],\r\n",
+					"        'etag': row['etag'],\r\n",
+					"        'name': row['name'],\r\n",
+					"        'status': row['status'],\r\n",
+					"        # Add more columns as needed\r\n",
+					"    }\r\n",
+					"    list_of_entities.append(entity)\r\n",
+					"    print(list_of_entities)"
+				],
+				"execution_count": 116
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"for entity in list_of_entities:\r\n",
+					"    table_service_2.insert_entity(my_table_name, entity)"
+				],
+				"execution_count": 115
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"my_lis =[]\r\n",
+					"for row in df.collect():\r\n",
+					"    #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+					"    row_key_value = row['RowKey']\r\n",
+					"    print(row_key_value)\r\n",
+					"    my_lis.append(row_key_value)\r\n",
+					"\r\n",
+					"print(my_lis)\r\n",
+					"my_lis =[]\r\n",
+					"for i in my_lis:\r\n",
+					"    filter_condition = f\"RowKey eq '{i}'\"\r\n",
+					"\r\n",
+					"    # Retrieve entities that match the filter condition\r\n",
+					"    entities_to_update = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+					"\r\n",
+					"    # Update the desired column in the matching entities\r\n",
+					"    for entity in entities_to_update:\r\n",
+					"        entity['status'] = 'found'\r\n",
+					"        table_service_2.update_entity(my_table_name, entity)"
+				],
+				"execution_count": 120
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.cosmosdb.table.tableservice import TableService\r\n",
+					"from azure.cosmosdb.table.models import Entity\r\n",
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'myadls8434'\r\n",
+					"account_key = 'z2N249esc4bSp4bT5DztOnYcwARvEMgybHb1/oOtUsCtX8IW+64T5l2ip+WvWcjXsLEgtDOEJtm0+AStbOkngg=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Define the entity to update\r\n",
+					"entity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '4',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '5',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '6',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"}]\r\n",
+					"\r\n",
+					"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+					"    for i in entity:    \r\n",
+					"        table_service.insert_or_merge_entity(table_name, i)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def convert_to_empty_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+					"\r\n",
+					"    # Extract and print the properties (column names) from the sample entities\r\n",
+					"    if all_entities:\r\n",
+					"        properties = set()\r\n",
+					"        for entity in all_entities:\r\n",
+					"            properties.update(entity.keys())\r\n",
+					"\r\n",
+					"        print(\"Properties (Column Names):\")\r\n",
+					"        print(properties)\r\n",
+					"    else:\r\n",
+					"        print(\"No entities found in the table.\")\r\n",
+					"\r\n",
+					"\r\n",
+					"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+					"    my_list = list(properties)\r\n",
+					"    print(my_list)\r\n",
+					"    schema = StructType([\r\n",
+					"        StructField(column, StringType(), True) for column in my_list\r\n",
+					"    ])\r\n",
+					"    empty_df = spark.createDataFrame([], schema)\r\n",
+					"    empty_df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"df_list = []\r\n",
+					"def table_to_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name)\r\n",
+					"    entity_list = []\r\n",
+					"    # Print or process the retrieved entities\r\n",
+					"    for entity in all_entities:\r\n",
+					"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+					"        entity_list.append(entity_dict)\r\n",
+					"\r\n",
+					"    df = spark.createDataFrame(entity_list)\r\n",
+					"\r\n",
+					"    # Show the DataFrame\r\n",
+					"    df.show()\r\n",
+					"    df_list.append(df)\r\n",
+					"\r\n",
+					"filter_condition = \"status eq 'to be deleted'\"\r\n",
+					"def query_table(filter_condition):\r\n",
+					"    # Execute the query\r\n",
+					"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+					"\r\n",
+					"\r\n",
+					"    for i in query_result:\r\n",
+					"        print('i is:',i)\r\n",
+					"        df = spark.createDataFrame(query_result)\r\n",
+					"        df.show(truncate=False)\r\n",
+					"\r\n",
+					"\r\n",
+					"    \r\n",
+					"def update_table(df,table_name,col_name,col2,ctu):\r\n",
+					"    \r\n",
+					"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+					"    data_to_insert = df_list[0].collect()\r\n",
+					"    list_of_entities = []\r\n",
+					"    #print(data_to_insert)\r\n",
+					"\r\n",
+					"    for row in data_to_insert:\r\n",
+					"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+					"        entity = {\r\n",
+					"            'PartitionKey': row['PartitionKey'],\r\n",
+					"            'RowKey': row['RowKey'],\r\n",
+					"            'Timestamp': row['Timestamp'],\r\n",
+					"            'etag': row['etag'],\r\n",
+					"            'name': row['name'],\r\n",
+					"            'status': row['status'],\r\n",
+					"            # Add more columns as needed\r\n",
+					"        }\r\n",
+					"        list_of_entities.append(entity)\r\n",
+					"        print(list_of_entities)\r\n",
+					"\r\n",
+					"    my_lis =[]\r\n",
+					"    for row in df_list[0].collect():\r\n",
+					"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+					"        row_key_value = row[f'{col_name}']\r\n",
+					"        print(row_key_value)\r\n",
+					"        my_lis.append(row_key_value)\r\n",
+					"\r\n",
+					"    for i in my_lis:\r\n",
+					"        \r\n",
+					"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+					"\r\n",
+					"        # Retrieve entities that match the filter condition\r\n",
+					"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+					"\r\n",
+					"        # Update the desired column in the matching entities\r\n",
+					"        for entity in entities_to_update:\r\n",
+					"            entity[f'{col2}'] = ctu\r\n",
+					"            table_service.update_entity(table_name, entity)\r\n",
+					"        \r\n",
+					"  \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"insert_entity(entity,my_table)\r\n",
+					"insert_entity(entity,new_table)\r\n",
+					"#table_to_df(my_table)\r\n",
+					"#update_table(df,new_table,'RowKey','status','not found')\r\n",
+					"   \r\n",
+					"\r\n",
+					"    \r\n",
+					"\r\n",
+					" \r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 145
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_list[0].show()"
+				],
+				"execution_count": 141
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			}
 		]
 	}
