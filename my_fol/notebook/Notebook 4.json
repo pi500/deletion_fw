@@ -1,0 +1,592 @@
+{
+	"name": "Notebook 4",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "mypool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ea20d12a-6dde-431f-a6a0-23a91e33e32a"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+				"name": "mypool",
+				"type": "Spark",
+				"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"doo =  \"{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}\"\r\n",
+					"#doo = doo.replace('{', '[{')\r\n",
+					"#doo = doo.replace('}', '}]')\r\n",
+					"print(doo)\r\n",
+					"boo = json.loads(doo)\r\n",
+					"\r\n",
+					"print(f'boo:{boo}')\r\n",
+					"print(type(boo))"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"## pre-audit NB code\r\n",
+					"from pyspark.sql.functions import col,when,lit\r\n",
+					"import json\r\n",
+					"import re \r\n",
+					"from notebookutils import mssparkutils\r\n",
+					"delete_master = [{\r\n",
+					"\"event_id\" : \"12\",\r\n",
+					"\"record_type\" : \"cust_id\",\r\n",
+					"\"record_id\" : \"1\",\r\n",
+					"\"date\" : \"2024-01-01\"\r\n",
+					"},{\r\n",
+					"\"event_id\" : \"12\",\r\n",
+					"\"record_type\" : \"cust\",\r\n",
+					"\"record_id\" : \"7\",\r\n",
+					"\"date\" : \"2024-01-01\",\r\n",
+					"\r\n",
+					"},\r\n",
+					"{\r\n",
+					"\"event_id\" : \"13\",\r\n",
+					"\"record_type\" : \"cust_id\",\r\n",
+					"\"record_id\" : \"9\",\r\n",
+					"\"date\" : \"2024-01-02\",\r\n",
+					"\r\n",
+					"}]\r\n",
+					"\r\n",
+					"gg = spark.createDataFrame(delete_master)\r\n",
+					"gg.show()\r\n",
+					"\r\n",
+					"doo =  \"{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}\"\r\n",
+					"#doo = doo.replace('{', '[{')\r\n",
+					"#doo = doo.replace('}', '}]')\r\n",
+					"print(doo)\r\n",
+					"boo = json.loads(doo)\r\n",
+					"\r\n",
+					"print(f'boo:{boo}')\r\n",
+					"print(type(boo))\r\n",
+					"\r\n",
+					"bgg = spark.createDataFrame(boo)\r\n",
+					"#bgg.show()\r\n",
+					"display(bgg)\r\n",
+					"\r\n",
+					"import re\r\n",
+					"from notebookutils import mssparkutils\r\n",
+					"from pyspark.sql.types import *\r\n",
+					"\r\n",
+					"year_list = []\r\n",
+					"result_list= []\r\n",
+					"month_list = []\r\n",
+					"day_list = []\r\n",
+					"files_list = []\r\n",
+					"new = bgg.count()\r\n",
+					"for i in range(0,new):\r\n",
+					"    year_list = []\r\n",
+					"    year_pre = []\r\n",
+					"    row = bgg.collect()[i]\r\n",
+					"    adls = (row[0])\r\n",
+					"    data_format = (row[3])\r\n",
+					"    data_node = (row[4])\r\n",
+					"    data_product = (row[5])\r\n",
+					"    data_table = (row[6])\r\n",
+					"    data_zone = (row[7])\r\n",
+					"    dest_fol = (row[8])\r\n",
+					"    record_type = (row[11])\r\n",
+					"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+					"    name = str(files_in_adls)\r\n",
+					"    print('name is:'+name)\r\n",
+					"    print('name is:'+name)\r\n",
+					"    if len(files_in_adls) > 1 :\r\n",
+					"        name = name.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+					"        year_pre = name.split(',,')\r\n",
+					"        print(f'year_pre:{year_pre}')\r\n",
+					"    else:\r\n",
+					"        year_pre.append(name)\r\n",
+					"    #print(type(name))\r\n",
+					"    for b in year_pre:\r\n",
+					"        match = re.search(r'name=(\\w+)', b)\r\n",
+					"        name_value = match.group(1)\r\n",
+					"        #print(name_value)\r\n",
+					"        year_list.append(name_value)\r\n",
+					"        #print('year list is :')\r\n",
+					"    print(year_list)\r\n",
+					"    print(f'table_name:{data_table}')\r\n",
+					"\r\n",
+					"    for j in range(len(year_list)):\r\n",
+					"        month_pre = []\r\n",
+					"        month_list = []\r\n",
+					"        pa = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}\"\r\n",
+					"        print(pa)\r\n",
+					"        files_in_adls1= mssparkutils.fs.ls(pa)\r\n",
+					"        print(len(files_in_adls1))\r\n",
+					"        name1 = str(files_in_adls1)\r\n",
+					"        print(f'name1: {name1}')\r\n",
+					"        if len(files_in_adls1) > 1 :\r\n",
+					"            name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+					"            month_pre = name1.split(',,')\r\n",
+					"        else:\r\n",
+					"            month_pre.append(name1)\r\n",
+					"        print('month_pre is')\r\n",
+					"        print(month_pre)\r\n",
+					"        \r\n",
+					"        for d in month_pre:\r\n",
+					"            #print('d is:'+d)\r\n",
+					"            match1 = re.search(r'name=(\\w+)', d)\r\n",
+					"            name_value1 = match1.group(1)\r\n",
+					"            #print(name_value1)\r\n",
+					"            month_list.append(name_value1)\r\n",
+					"        #print(' month is :')\r\n",
+					"        print(month_list)\r\n",
+					"        \r\n",
+					"        for t in range(len(month_list)):\r\n",
+					"            day_lis_lis = []\r\n",
+					"            day_list=[]\r\n",
+					"            day_pre =[]\r\n",
+					"            files_in_adls2= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}\")\r\n",
+					"            name2 = str(files_in_adls2)\r\n",
+					"            print('name2 is:')\r\n",
+					"            print(name2)\r\n",
+					"            if len(files_in_adls2) > 1 :\r\n",
+					"                name2 = name2.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+					"                day_pre = name2.split(',,')\r\n",
+					"            else:\r\n",
+					"                day_pre.append(name2)\r\n",
+					"            print('day_pre')\r\n",
+					"            print(day_pre)\r\n",
+					"            \r\n",
+					"            for s in day_pre:\r\n",
+					"                \r\n",
+					"                match2 = re.search(r'name=(\\w+)', s)\r\n",
+					"                name_value2 = match2.group(1)\r\n",
+					"                print('name_val2')\r\n",
+					"                print(name_value2)\r\n",
+					"                day_list.append(name_value2)\r\n",
+					"            \r\n",
+					"            day_lis_lis.append(day_list )\r\n",
+					"            \r\n",
+					"            print('day_list is')\r\n",
+					"            print(day_lis_lis)\r\n",
+					"            #day_lis_lis = [['2','3']]\r\n",
+					"            for k in day_lis_lis:\r\n",
+					"                print(f'day_lis_lis is:{day_lis_lis}')\r\n",
+					"                print(f'k is:{k}')\r\n",
+					"                print(len(k))\r\n",
+					"                for g in range(len(k)):\r\n",
+					"                    \r\n",
+					"                    print(f'g is:{g}')\r\n",
+					"                    \r\n",
+					"                    print(f't:{t}')\r\n",
+					"                    print(f'j:{j}')\r\n",
+					"                    print(f'k[g]{k[g]}')\r\n",
+					"                    path = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}/{k[g]}\"\r\n",
+					"                    print(f'path is:{path}')\r\n",
+					"                    files_in_adls3= mssparkutils.fs.ls(path)\r\n",
+					"                    name3 = str(files_in_adls3)\r\n",
+					"                    print('name3 is :')\r\n",
+					"                    print(name3)\r\n",
+					"                    \r\n",
+					"                    match3 = re.search(f'{data_table}/(.*?), name', name3)\r\n",
+					"                    name_value3 = match3.group(1)\r\n",
+					"                    \r\n",
+					"                    print(f'val3 is:{name_value3}')\r\n",
+					"                    split_parts = name_value3.split('/')\r\n",
+					"                    \r\n",
+					"                    split_parts.extend([data_table,data_zone,data_node,data_product,data_format,dest_fol,adls])\r\n",
+					"                    \r\n",
+					"                    result_list .append(split_parts)\r\n",
+					"                    print(f'result_list_in:{result_list}')\r\n",
+					"\r\n",
+					"\r\n",
+					"print(f'result_list_out:{result_list}')   \r\n",
+					"my_schema = StructType([\r\n",
+					"    StructField(\"year\", StringType()),\r\n",
+					"    StructField(\"month\", StringType()),\r\n",
+					"    StructField(\"day\", StringType()),\r\n",
+					"    StructField(\"file_name\", StringType()),\r\n",
+					"    StructField(\"data_table\", StringType()),\r\n",
+					"    StructField(\"data_zone\", StringType()),\r\n",
+					"    StructField(\"data_node\", StringType()),\r\n",
+					"    StructField(\"data_product\", StringType()),\r\n",
+					"    StructField(\"data_format\", StringType()),\r\n",
+					"    StructField(\"dest_fol\", StringType()),\r\n",
+					"    StructField(\"adls\", StringType()),\r\n",
+					"    # Add more fields as needed\r\n",
+					"])  \r\n",
+					"\r\n",
+					"\r\n",
+					"new_df = spark.createDataFrame(data=result_list,schema=my_schema)\r\n",
+					"new_df= new_df.distinct()\r\n",
+					"#new_df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"new_df= new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+					"\r\n",
+					"\r\n",
+					"from pyspark.sql.functions import lit,col,when\r\n",
+					"ma_list = []\r\n",
+					"noo = len(gg.collect())\r\n",
+					"#net=new_df.count()\r\n",
+					"#print(net)\r\n",
+					"for i in range(noo):\r\n",
+					"    row = gg.collect()[i]\r\n",
+					"    print(i)\r\n",
+					"    dict_row = row.asDict()\r\n",
+					"    #my_df = df_with_default\r\n",
+					"    \r\n",
+					"    r_t =  dict_row['record_type']\r\n",
+					"    r_i = dict_row['record_id']\r\n",
+					"    e_i = dict_row['event_id']\r\n",
+					"    new_df = new_df.withColumn('record_type', lit(r_t))\r\n",
+					"    new_df = new_df.withColumn('record_id',lit(r_i))\r\n",
+					"    new_df = new_df.withColumn(\"event_id\",lit(e_i))\r\n",
+					"    new_df = new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+					"    #df_with_default.show()\r\n",
+					"    ma_list.append(new_df)\r\n",
+					"\r\n",
+					"#df_with_default.show()\r\n",
+					"union_df1 = ma_list[0]  # Initialize with the first DataFrame in the list\r\n",
+					"\r\n",
+					"for df in ma_list[1:]:\r\n",
+					"    union_df1 = union_df1.union(df)\r\n",
+					"print('final df:')\r\n",
+					"union_df1 = union_df1.distinct()\r\n",
+					"union_df1.show(25)\r\n",
+					"            \r\n",
+					"            \r\n",
+					"\r\n",
+					"\r\n",
+					"# In[ ]:\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install pyapacheatlas"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyapacheatlas.core import AtlasEntity,AtlasProcess\r\n",
+					"from pyapacheatlas.core.util import GuidTracker\r\n",
+					"gt = GuidTracker()\r\n",
+					"doo = []\r\n",
+					"inp_name = 'piyush'\r\n",
+					"inp_entitytype = 'dataset'\r\n",
+					"inp_qualified_name = 'jhvhgvujyvui'\r\n",
+					"inp_guid = gt.get_guid()\r\n",
+					"print(inp_guid)\r\n",
+					"doo.append(AtlasEntity(name=inp_name, typeName=inp_entitytype,\r\n",
+					"                       qualified_name=inp_qualified_name, guid=inp_guid))\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(doo)"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-identity"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"'''from azure.identity import DefaultAzureCredential\r\n",
+					"from azure.purview.catalog import PurviewCatalogClient\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"credential = DefaultAzureCredential()\r\n",
+					"purview_account_name = 'mypview7971'\r\n",
+					"\r\n",
+					"client = c(account_name=purview_account_name, credential=credential)'''\r\n",
+					"\r\n",
+					"from azure.identity import ClientSecretCredential\r\n",
+					"from pyapacheatlas.core import PurviewClient\r\n",
+					"\r\n",
+					"# Instantiate the ManagedIdentityCredential\r\n",
+					"#credential = ManagedIdentityCredential(client_id='98762b41-7741-4eea-9bba-88800a71c9a9')\r\n",
+					"\r\n",
+					"# Replace 'https://<your_purview_account_name>.catalog.purview.azure.com' with the appropriate URL\r\n",
+					"purview_account_url = 'https://mypview7971.catalog.purview.azure.com'\r\n",
+					"\r\n",
+					"tenant_id = 'cc57848b-a9cf-4793-b69d-09034803c961'\r\n",
+					"client_id = '3018e9ef-a697-41a8-b3d5-f1d16629ce39'\r\n",
+					"client_secret = 'Al88Q~qvInZhP_XdTI4VwEDUtR_ftc8U2-t5RbgM'\r\n",
+					"\r\n",
+					"# Create the Purview client\r\n",
+					"credential = ClientSecretCredential(tenant_id, client_id, client_secret)\r\n",
+					"\r\n",
+					"client = PurviewClient(purview_account_url, credential)\r\n",
+					"print(client)\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyapacheatlas.core.typedef import (EntityTypeDef,AtlasAttributeDef)\r\n",
+					"process_name = 'synp nb'\r\n",
+					"proc_type = EntityTypeDef(name=process_name,\r\n",
+					"superTypes=[\"process\"],\r\n",
+					"attributesDefs=[AtlasAttributeDef(\"columnMapping\"),\r\n",
+					"                AtlasAttributeDef(\"HardCodedColumns\"),\r\n",
+					"                AtlasAttributeDef(\"Delta_Tables\"),\r\n",
+					"                AtlasAttributeDef(\"Global_Temp_Views_or_Tables\"),\r\n",
+					"                AtlasAttributeDef(\"Intermediate_Temp_Views_or_Tables\"),\r\n",
+					"                AtlasAttributeDef(\"JoinConditions\")])\r\n",
+					"\r\n",
+					"print(proc_type)\r\n",
+					"\r\n",
+					"client.upload_typedefs(entityDefs=[proc_type],force_update=True)"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.identity import ClientSecretCredential\r\n",
+					"from pyapacheatlas.core import PurviewClient\r\n",
+					"\r\n",
+					"# Define the Azure Purview account name\r\n",
+					"purview_account_name = 'mypview7971'\r\n",
+					"\r\n",
+					"# Define the URL of the Azure Purview account\r\n",
+					"purview_account_url = f'https://{purview_account_name}.catalog.purview.azure.com'\r\n",
+					"\r\n",
+					"# Define the Azure AD tenant ID, client ID, and client secret\r\n",
+					"tenant_id = 'cc57848b-a9cf-4793-b69d-09034803c961'\r\n",
+					"client_id = '3018e9ef-a697-41a8-b3d5-f1d16629ce39'\r\n",
+					"client_secret = 'Al88Q~qvInZhP_XdTI4VwEDUtR_ftc8U2-t5RbgM'\r\n",
+					"\r\n",
+					"# Create the ClientSecretCredential\r\n",
+					"credential = ClientSecretCredential(tenant_id, client_id, client_secret)\r\n",
+					"\r\n",
+					"# Create the Purview client\r\n",
+					"client = PurviewClient(account_name=purview_account_name, credential=credential)\r\n",
+					"\r\n",
+					"# Define and print the entity type definition\r\n",
+					"from pyapacheatlas.core.typedef import EntityTypeDef, AtlasAttributeDef\r\n",
+					"\r\n",
+					"process_name = 'synp nb'\r\n",
+					"proc_type = EntityTypeDef(\r\n",
+					"    name=process_name,\r\n",
+					"    superTypes=[\"process\"],\r\n",
+					"    attributesDefs=[\r\n",
+					"        AtlasAttributeDef(\"columnMapping\"),\r\n",
+					"        AtlasAttributeDef(\"HardCodedColumns\"),\r\n",
+					"        AtlasAttributeDef(\"Delta_Tables\"),\r\n",
+					"        AtlasAttributeDef(\"Global_Temp_Views_or_Tables\"),\r\n",
+					"        AtlasAttributeDef(\"Intermediate_Temp_Views_or_Tables\"),\r\n",
+					"        AtlasAttributeDef(\"JoinConditions\")\r\n",
+					"    ]\r\n",
+					")\r\n",
+					"\r\n",
+					"print(proc_type)\r\n",
+					"\r\n",
+					"# Upload the entity type definition\r\n",
+					"client.upload_typedefs(entityDefs=[proc_type], force_update=True)\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				]
+			}
+		]
+	}
+}

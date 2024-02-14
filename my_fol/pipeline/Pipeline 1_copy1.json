@@ -1,0 +1,51 @@
+{
+	"name": "Pipeline 1_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "new",
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.boo",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"boo": {
+				"type": "string",
+				"defaultValue": "data_master_lat.json"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-06T06:21:39Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

@@ -1,0 +1,59 @@
+{
+	"name": "Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "config"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"data_node": {
+					"type": "string"
+				},
+				"data_product": {
+					"type": "string"
+				},
+				"ls_adls_url": {
+					"type": "string"
+				},
+				"data_zone": {
+					"type": "string"
+				},
+				"dest_folder": {
+					"type": "string"
+				},
+				"data_table": {
+					"type": "string"
+				},
+				"record_type": {
+					"type": "string"
+				},
+				"historical_container": {
+					"type": "string"
+				},
+				"config_container": {
+					"type": "string"
+				},
+				"adls2_account_name": {
+					"type": "string"
+				},
+				"audit_folder": {
+					"type": "string"
+				},
+				"data_format": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

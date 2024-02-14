@@ -1,0 +1,1594 @@
+{
+	"name": "Notebook 3",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "mypool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "b1d38915-d34d-4a22-a5af-3f9e643e0928"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+				"name": "mypool",
+				"type": "Spark",
+				"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import os\r\n",
+					"\r\n",
+					"# Get a dictionary of all environment variables\r\n",
+					"env_variables = os.environ\r\n",
+					"\r\n",
+					"# Print all environment variables\r\n",
+					"for key, value in env_variables.items():\r\n",
+					"    print(f\"{key}: {value}\")\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%env AZURE_CLIENT_ID= 98762b41-7741-4eea-9bba-88800a71c9a9\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import os\r\n",
+					"\r\n",
+					"# Check if the environment variables are set\r\n",
+					"client_id = os.environ.get('AZURE_CLIENT_ID')\r\n",
+					"tenant_id = os.environ.get('AZURE_TENANT_ID')\r\n",
+					"client_secret = os.environ.get('AZURE_CLIENT_SECRET')\r\n",
+					"\r\n",
+					"# Print out the values if they are set\r\n",
+					"print(\"Azure Client ID:\", client_id)\r\n",
+					"print(\"Azure Tenant ID:\", tenant_id)\r\n",
+					"print(\"Azure Client Secret:\", client_secret)\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install  azure-storage-blob"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-data-tables==12.5.0"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-cosmosdb-table"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Step 1: Import necessary libraries\r\n",
+					"from azure.storage.blob import BlobServiceClient\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+					"from azure.identity import DefaultAzureCredential\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"entity_list = []\r\n",
+					"df_list = []\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+					"credential = DefaultAzureCredential()\r\n",
+					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+					"\r\n",
+					"# Step 3: Create a table in Azure Table Storage\r\n",
+					"table_name = \"kat123table\"\r\n",
+					"table_client = table_service.get_table_client(table_name)\r\n",
+					"table_client.create_table()\r\n",
+					"\r\n",
+					"print(f\"Table '{table_name}' created successfully.\")\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Step 1: Import necessary libraries\r\n",
+					"from azure.storage.blob import BlobServiceClient\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"entity_list = []\r\n",
+					"df_list = []\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+					"credential = AzureNamedKeyCredential(account_name, account_key)\r\n",
+					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+					"\r\n",
+					"# Step 3: Create a table in Azure Table Storage\r\n",
+					"table_name = \"lat123table\"\r\n",
+					"table_client = table_service.get_table_client(table_name)\r\n",
+					"table_client.create_table()\r\n",
+					"\r\n",
+					"print(f\"Table '{table_name}' created successfully.\")\r\n",
+					""
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-data-tables"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-identity"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip show python\r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pyspark\r\n",
+					"print(pyspark.__version__)\r\n",
+					""
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.cosmosdb.table.tableservice import TableService\r\n",
+					"from azure.cosmosdb.table.models import Entity\r\n",
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"entity_list = []\r\n",
+					"df_list = []\r\n",
+					"\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Define the entity to update\r\n",
+					"entity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '4',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '5',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '6',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"}]\r\n",
+					"\r\n",
+					"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+					"    for i in entity:    \r\n",
+					"        table_service.insert_or_merge_entity(table_name, i)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def convert_to_empty_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+					"\r\n",
+					"    # Extract and print the properties (column names) from the sample entities\r\n",
+					"    if all_entities:\r\n",
+					"        properties = set()\r\n",
+					"        for entity in all_entities:\r\n",
+					"            properties.update(entity.keys())\r\n",
+					"\r\n",
+					"        print(\"Properties (Column Names):\")\r\n",
+					"        print(properties)\r\n",
+					"    else:\r\n",
+					"        print(\"No entities found in the table.\")\r\n",
+					"\r\n",
+					"\r\n",
+					"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+					"    my_list = list(properties)\r\n",
+					"    print(my_list)\r\n",
+					"    schema = StructType([\r\n",
+					"        StructField(column, StringType(), True) for column in my_list\r\n",
+					"    ])\r\n",
+					"    empty_df = spark.createDataFrame([], schema)\r\n",
+					"    empty_df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def table_to_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name)\r\n",
+					"    entity_list = []\r\n",
+					"    # Print or process the retrieved entities\r\n",
+					"    for entity in all_entities:\r\n",
+					"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+					"        entity_list.append(entity_dict)\r\n",
+					"\r\n",
+					"    df = spark.createDataFrame(entity_list)\r\n",
+					"\r\n",
+					"    # Show the DataFrame\r\n",
+					"    df.show()\r\n",
+					"    df_list.append(df)\r\n",
+					"new_list =[]\r\n",
+					"filter_condition = \"status eq 'to be deleted'\"\r\n",
+					"def query_table(table_name,filter_condition):\r\n",
+					"    # Execute the query\r\n",
+					"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+					"    #print(f'query result:{query_result}')\r\n",
+					"    #print(type(query_result))\r\n",
+					"\r\n",
+					"    for i in query_result:\r\n",
+					"        print('i is:',i)\r\n",
+					"        new_list.append(i)\r\n",
+					"        print(f'new_list:{new_list}')\r\n",
+					"        df = spark.createDataFrame(query_result)\r\n",
+					"        df.show(truncate=False)\r\n",
+					"\r\n",
+					"\r\n",
+					"    \r\n",
+					"def update_table(df_list,table_name,col_name,col2,ctu):\r\n",
+					"    df = df_list[0]\r\n",
+					"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+					"    data_to_insert = df.collect()\r\n",
+					"    list_of_entities = []\r\n",
+					"    #print(data_to_insert)\r\n",
+					"\r\n",
+					"    for row in data_to_insert:\r\n",
+					"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+					"        entity = {\r\n",
+					"            'PartitionKey': row['PartitionKey'],\r\n",
+					"            'RowKey': row['RowKey'],\r\n",
+					"            'Timestamp': row['Timestamp'],\r\n",
+					"            'etag': row['etag'],\r\n",
+					"            'name': row['name'],\r\n",
+					"            'status': row['status'],\r\n",
+					"            # Add more columns as needed\r\n",
+					"        }\r\n",
+					"        list_of_entities.append(entity)\r\n",
+					"        print(list_of_entities)\r\n",
+					"\r\n",
+					"    my_lis =[]\r\n",
+					"    for row in df.collect():\r\n",
+					"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+					"        row_key_value = row[f'{col_name}']\r\n",
+					"        print(row_key_value)\r\n",
+					"        my_lis.append(row_key_value)\r\n",
+					"\r\n",
+					"    for i in my_lis:\r\n",
+					"        \r\n",
+					"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+					"\r\n",
+					"        # Retrieve entities that match the filter condition\r\n",
+					"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+					"\r\n",
+					"        # Update the desired column in the matching entities\r\n",
+					"        for entity in entities_to_update:\r\n",
+					"            entity[f'{col2}'] = ctu\r\n",
+					"            table_service.update_entity(table_name, entity)\r\n",
+					"        \r\n",
+					"  \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"#insert_entity(entity,my_table)\r\n",
+					"#insert_entity(entity,new_table)\r\n",
+					"#table_to_df(my_table)\r\n",
+					"\r\n",
+					"\r\n",
+					"#print(len(df_list))\r\n",
+					"#update_table(df_list,new_table,'RowKey','status','found')\r\n",
+					"   \r\n",
+					"\r\n",
+					"    \r\n",
+					"\r\n",
+					" \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#fil = \"status eq 'not found'\"\r\n",
+					"filter_condition = \"status eq 'not found'\"\r\n",
+					"query_table(my_table,filter_condition)"
+				],
+				"execution_count": 80
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"!pip install --upgrade pip\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"!pip --version\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install --upgrade pip"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.cosmosdb.table.tableservice import TableService\r\n",
+					"from azure.cosmosdb.table.models import Entity\r\n",
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"entity_list = []\r\n",
+					"df_list = []\r\n",
+					"\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+					"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Define the entity to update\r\n",
+					"entity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '4',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '5',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '6',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"}]\r\n",
+					"\r\n",
+					"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+					"    for i in entity:    \r\n",
+					"        table_service.insert_or_merge_entity(table_name, i)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def convert_to_empty_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+					"\r\n",
+					"    # Extract and print the properties (column names) from the sample entities\r\n",
+					"    if all_entities:\r\n",
+					"        properties = set()\r\n",
+					"        for entity in all_entities:\r\n",
+					"            properties.update(entity.keys())\r\n",
+					"\r\n",
+					"        print(\"Properties (Column Names):\")\r\n",
+					"        print(properties)\r\n",
+					"    else:\r\n",
+					"        print(\"No entities found in the table.\")\r\n",
+					"\r\n",
+					"\r\n",
+					"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+					"    my_list = list(properties)\r\n",
+					"    print(my_list)\r\n",
+					"    schema = StructType([\r\n",
+					"        StructField(column, StringType(), True) for column in my_list\r\n",
+					"    ])\r\n",
+					"    empty_df = spark.createDataFrame([], schema)\r\n",
+					"    empty_df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def table_to_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name)\r\n",
+					"    entity_list = []\r\n",
+					"    # Print or process the retrieved entities\r\n",
+					"    for entity in all_entities:\r\n",
+					"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+					"        entity_list.append(entity_dict)\r\n",
+					"\r\n",
+					"    df = spark.createDataFrame(entity_list)\r\n",
+					"\r\n",
+					"    # Show the DataFrame\r\n",
+					"    df.show()\r\n",
+					"    df_list.append(df)\r\n",
+					"new_list =[]\r\n",
+					"filter_condition = \"status eq 'to be deleted'\"\r\n",
+					"def query_table(table_name,filter_condition):\r\n",
+					"    # Execute the query\r\n",
+					"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+					"    #print(f'query result:{query_result}')\r\n",
+					"    #print(type(query_result))\r\n",
+					"\r\n",
+					"    for i in query_result:\r\n",
+					"        print('i is:',i)\r\n",
+					"        new_list.append(i)\r\n",
+					"        print(f'new_list:{new_list}')\r\n",
+					"        df = spark.createDataFrame(query_result)\r\n",
+					"        df.show(truncate=False)\r\n",
+					"\r\n",
+					"\r\n",
+					"    \r\n",
+					"def update_table(df_list,table_name,col_name,col2,ctu):\r\n",
+					"    df = df_list[0]\r\n",
+					"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+					"    data_to_insert = df.collect()\r\n",
+					"    list_of_entities = []\r\n",
+					"    #print(data_to_insert)\r\n",
+					"\r\n",
+					"    for row in data_to_insert:\r\n",
+					"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+					"        entity = {\r\n",
+					"            'PartitionKey': row['PartitionKey'],\r\n",
+					"            'RowKey': row['RowKey'],\r\n",
+					"            'Timestamp': row['Timestamp'],\r\n",
+					"            'etag': row['etag'],\r\n",
+					"            'name': row['name'],\r\n",
+					"            'status': row['status']\r\n",
+					"            # Add more columns as needed\r\n",
+					"        }\r\n",
+					"        list_of_entities.append(entity)\r\n",
+					"        print(list_of_entities)\r\n",
+					"\r\n",
+					"    my_lis =[]\r\n",
+					"    for row in df.collect():\r\n",
+					"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+					"        row_key_value = row[f'{col_name}']\r\n",
+					"        print(row_key_value)\r\n",
+					"        my_lis.append(row_key_value)\r\n",
+					"\r\n",
+					"    for i in my_lis:\r\n",
+					"        \r\n",
+					"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+					"\r\n",
+					"        # Retrieve entities that match the filter condition\r\n",
+					"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+					"\r\n",
+					"        # Update the desired column in the matching entities\r\n",
+					"        for entity in entities_to_update:\r\n",
+					"            entity[f'{col2}'] = ctu\r\n",
+					"            table_service.update_entity(table_name, entity)\r\n",
+					"        \r\n",
+					"  \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"#insert_entity(entity,my_table)\r\n",
+					"#insert_entity(entity,new_table)\r\n",
+					"#table_to_df(my_table)\r\n",
+					"\r\n",
+					"\r\n",
+					"#print(len(df_list))\r\n",
+					"#update_table(df_list,new_table,'RowKey','status','found')\r\n",
+					"   \r\n",
+					"\r\n",
+					"    \r\n",
+					"\r\n",
+					" \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.data.tables import TableServiceClient\r\n",
+					"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"access_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"\r\n",
+					"# Construct the endpoint URL\r\n",
+					"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+					"\r\n",
+					"# Create a shared access signature credential\r\n",
+					"credential = AzureNamedKeyCredential(name=account_name,key=access_key)\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+					""
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"help(AzureNamedKeyCredential)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.data.tables import TableClient\r\n",
+					"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"entity_list = []\r\n",
+					"df_list = []\r\n",
+					"\r\n",
+					"\r\n",
+					"# Construct the endpoint URL\r\n",
+					"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+					"\r\n",
+					"# Create a shared access signature credential\r\n",
+					"credential = AzureNamedKeyCredential(name=account_name,key=access_key)\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+					"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+					"\r\n",
+					"table_client = table_service.get_table_client(new_table)\r\n",
+					"table_client1 = table_service.get_table_client(my_table)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Define the entity to update\r\n",
+					"entity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '4',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '5',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '6',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'Timestamp' : f'{current_timestamp}',\r\n",
+					"    'status' : 'not found'\r\n",
+					"}]\r\n",
+					"\r\n",
+					"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+					"    for i in entity:    \r\n",
+					"        table_service.upsert_entity(table_name, i)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def convert_to_empty_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+					"\r\n",
+					"    # Extract and print the properties (column names) from the sample entities\r\n",
+					"    if all_entities:\r\n",
+					"        properties = set()\r\n",
+					"        for entity in all_entities:\r\n",
+					"            properties.update(entity.keys())\r\n",
+					"\r\n",
+					"        print(\"Properties (Column Names):\")\r\n",
+					"        print(properties)\r\n",
+					"    else:\r\n",
+					"        print(\"No entities found in the table.\")\r\n",
+					"\r\n",
+					"\r\n",
+					"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+					"    my_list = list(properties)\r\n",
+					"    print(my_list)\r\n",
+					"    schema = StructType([\r\n",
+					"        StructField(column, StringType(), True) for column in my_list\r\n",
+					"    ])\r\n",
+					"    empty_df = spark.createDataFrame([], schema)\r\n",
+					"    empty_df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"def table_to_df(table_name):\r\n",
+					"    all_entities = table_service.query_entities(table_name)\r\n",
+					"    entity_list = []\r\n",
+					"    # Print or process the retrieved entities\r\n",
+					"    for entity in all_entities:\r\n",
+					"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+					"        entity_list.append(entity_dict)\r\n",
+					"\r\n",
+					"    df = spark.createDataFrame(entity_list)\r\n",
+					"\r\n",
+					"    # Show the DataFrame\r\n",
+					"    df.show()\r\n",
+					"    df_list.append(df)\r\n",
+					"new_list =[]\r\n",
+					"filter_condition = \"status eq 'to be deleted'\"\r\n",
+					"def query_table(table_name,filter_condition):\r\n",
+					"    # Execute the query\r\n",
+					"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+					"    #print(f'query result:{query_result}')\r\n",
+					"    #print(type(query_result))\r\n",
+					"\r\n",
+					"    for i in query_result:\r\n",
+					"        print('i is:',i)\r\n",
+					"        new_list.append(i)\r\n",
+					"        print(f'new_list:{new_list}')\r\n",
+					"        df = spark.createDataFrame(query_result)\r\n",
+					"        df.show(truncate=False)\r\n",
+					"\r\n",
+					"\r\n",
+					"    \r\n",
+					"def update_table(df_list,table_name,col_name,col2,ctu):\r\n",
+					"    df = df_list[0]\r\n",
+					"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+					"    data_to_insert = df.collect()\r\n",
+					"    list_of_entities = []\r\n",
+					"    #print(data_to_insert)\r\n",
+					"\r\n",
+					"    for row in data_to_insert:\r\n",
+					"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+					"        entity = {\r\n",
+					"            'PartitionKey': row['PartitionKey'],\r\n",
+					"            'RowKey': row['RowKey'],\r\n",
+					"            'Timestamp': row['Timestamp'],\r\n",
+					"            'etag': row['etag'],\r\n",
+					"            'name': row['name'],\r\n",
+					"            'status': row['status'],\r\n",
+					"            # Add more columns as needed\r\n",
+					"        }\r\n",
+					"        list_of_entities.append(entity)\r\n",
+					"        print(list_of_entities)\r\n",
+					"\r\n",
+					"    my_lis =[]\r\n",
+					"    for row in df.collect():\r\n",
+					"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+					"        row_key_value = row[f'{col_name}']\r\n",
+					"        print(row_key_value)\r\n",
+					"        my_lis.append(row_key_value)\r\n",
+					"\r\n",
+					"    for i in my_lis:\r\n",
+					"        \r\n",
+					"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+					"\r\n",
+					"        # Retrieve entities that match the filter condition\r\n",
+					"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+					"\r\n",
+					"        # Update the desired column in the matching entities\r\n",
+					"        for entity in entities_to_update:\r\n",
+					"            entity[f'{col2}'] = ctu\r\n",
+					"            table_service.update_entity(table_name, entity)\r\n",
+					"        \r\n",
+					"  \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"insert_entity(entity,my_table)\r\n",
+					"insert_entity(entity,new_table)\r\n",
+					"#table_to_df(my_table)\r\n",
+					"\r\n",
+					"\r\n",
+					"#print(len(df_list))\r\n",
+					"#update_table(df_list,new_table,'RowKey','status','found')\r\n",
+					"   \r\n",
+					"\r\n",
+					"    \r\n",
+					"\r\n",
+					" \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+					"from azure.data.tables import TableServiceClient\r\n",
+					"from azure.data.tables import TableClient\r\n",
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Replace these with your Azure Table Storage credentials\r\n",
+					"account_name = 'newadls8434'\r\n",
+					"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"new_table = 'newtable123'\r\n",
+					"my_table = 'mytable123'\r\n",
+					"entity_list = []\r\n",
+					"df_list = []\r\n",
+					"\r\n",
+					"# Create a table service object\r\n",
+					"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+					"credential = AzureNamedKeyCredential(account_name, account_key)\r\n",
+					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+					"\r\n",
+					"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+					"entity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '4',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'stamp' : datetime.now().strftime(\"%Y-%m-%d %I:%M:%S.%f %p\"),\r\n",
+					"    'status' : 'not found'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '12',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'stamp' : datetime.now().strftime(\"%Y-%m-%d %I:%M:%S.%f %p\"),\r\n",
+					"    'status' : 'not found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '6',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'stamp' : datetime.now().strftime('%Y-%m-%d %I:%M:%S.%f %p'),\r\n",
+					"    'status' : 'found'\r\n",
+					"}]\r\n",
+					"def insert_entity1(entity, table_name):\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    for i in entity:\r\n",
+					"        table_client.upsert_entity(i)\r\n",
+					"\r\n",
+					"def convert_to_empty_df1(table_name):\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    all_entities = table_client.list_entities()\r\n",
+					"\r\n",
+					"    # Extract and print the properties (column names) from the sample entities\r\n",
+					"    if all_entities:\r\n",
+					"        properties = set()\r\n",
+					"        for entity in all_entities:\r\n",
+					"            properties.update(entity.keys())\r\n",
+					"\r\n",
+					"        print(\"Properties (Column Names):\")\r\n",
+					"        print(properties)\r\n",
+					"    else:\r\n",
+					"        print(\"No entities found in the table.\")\r\n",
+					"\r\n",
+					"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+					"    my_list = list(properties)\r\n",
+					"    print(my_list)\r\n",
+					"    schema = StructType([\r\n",
+					"        StructField(column, StringType(), True) for column in my_list\r\n",
+					"    ])\r\n",
+					"    empty_df = spark.createDataFrame([], schema)\r\n",
+					"    empty_df.show()\r\n",
+					"\r\n",
+					"def table_to_df1(table_name):\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    all_entities = table_client.list_entities()\r\n",
+					"        \r\n",
+					"    entity_list = []\r\n",
+					"    # Print or process the retrieved entities\r\n",
+					"    for entity in all_entities:\r\n",
+					"        print(f'all entities: {entity}')\r\n",
+					"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+					"        print(entity_dict)\r\n",
+					"        entity_list.append(entity_dict)\r\n",
+					"    print(f'entity_list:{entity_list}')\r\n",
+					"    df = spark.createDataFrame(entity_list)\r\n",
+					"\r\n",
+					"    # Show the DataFrame\r\n",
+					"    df.show()\r\n",
+					"    return df\r\n",
+					"\r\n",
+					"new_list = []\r\n",
+					"'''\r\n",
+					"#filter_condition = \"status eq 'to be deleted'\"\r\n",
+					"def query_table1(table_name, filter_condition):\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    # Execute the query\r\n",
+					"    query_result = table_client.query_entities(query_filter=filter_condition)\r\n",
+					"    print(f'query_result:{query_result}')\r\n",
+					"    for i in query_result:\r\n",
+					"        print('i is:', i)\r\n",
+					"        new_list.append(i)\r\n",
+					"        print(f'new_list:{new_list}')\r\n",
+					"        \r\n",
+					"        df = spark.createDataFrame(query_result)\r\n",
+					"        df.show(truncate=False)'''\r\n",
+					"def query_table1(table_name, filter_condition):\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    # Execute the query with pagination\r\n",
+					"    query_result = table_client.query_entities(query_filter=filter_condition)\r\n",
+					"    \r\n",
+					"    # Process each page of results\r\n",
+					"    for page in query_result.by_page():\r\n",
+					"        for entity in page:\r\n",
+					"            print('Entity:', entity)\r\n",
+					"            new_list.append(entity)\r\n",
+					"\r\n",
+					"    # Create DataFrame from the collected entities\r\n",
+					"    df = spark.createDataFrame(new_list)\r\n",
+					"    df.show(truncate=False)\r\n",
+					"\r\n",
+					"def update_table1(df, table_name, col_name, col2, ctu):\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"\r\n",
+					"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+					"    data_to_insert = df.collect()\r\n",
+					"    list_of_entities = []\r\n",
+					"    print(f'data_insert:{data_to_insert}')\r\n",
+					"\r\n",
+					"    for row in data_to_insert:\r\n",
+					"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+					"        entity = {\r\n",
+					"            'PartitionKey': row['PartitionKey'],\r\n",
+					"            'RowKey': row['RowKey'],\r\n",
+					"            'stamp': row['stamp'],\r\n",
+					"            'name': row['name'],\r\n",
+					"            'status': row['status']\r\n",
+					"            # Add more columns as needed\r\n",
+					"        }\r\n",
+					"        list_of_entities.append(entity)\r\n",
+					"        print(list_of_entities)\r\n",
+					"\r\n",
+					"    my_lis = []\r\n",
+					"    for row in df.collect():\r\n",
+					"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+					"        row_key_value = row[f'{col_name}']\r\n",
+					"        print(row_key_value)\r\n",
+					"        my_lis.append(row_key_value)\r\n",
+					"\r\n",
+					"    for i in my_lis:\r\n",
+					"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+					"\r\n",
+					"        # Retrieve entities that match the filter condition\r\n",
+					"        entities_to_update = table_client.query_entities(query_filter=filter_condition2)\r\n",
+					"\r\n",
+					"        # Update the desired column in the matching entities\r\n",
+					"        for entity in entities_to_update:\r\n",
+					"            entity[f'{col2}'] = ctu\r\n",
+					"            table_client.update_entity(entity)\r\n",
+					""
+				],
+				"execution_count": 136
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"insert_entity1(entity,my_table)\r\n",
+					"insert_entity1(entity,new_table)"
+				],
+				"execution_count": 138
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"fil = \"status eq 'not found'\"\r\n",
+					"query_table1(new_table,fil)"
+				],
+				"execution_count": 139
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = table_to_df1(my_table)\r\n",
+					""
+				],
+				"execution_count": 140
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"update_table1(df,new_table,'RowKey','status','found')"
+				],
+				"execution_count": 141
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import re\r\n",
+					"file_path = f\"abfss://config@newadls8434.dfs.core.windows.net/new/data_master_lat.json\"\r\n",
+					"# Read JSON file into an RDD\r\n",
+					"json_rdd = sc.textFile(file_path)\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Combine JSON strings into a single JSON object or array\r\n",
+					"# If an array is needed:\r\n",
+					"#json_array = \"[\" + ','.join(json_rdd.collect()) + \"]\"\r\n",
+					"json_array =   ','.join(json_rdd.collect())\r\n",
+					"#print(f'json array:{json_array}')\r\n",
+					"modified_string = json_array[3:-3]\r\n",
+					"modified_string = modified_string.replace(',},,{,', '}{')\r\n",
+					"\r\n",
+					"modified_string = modified_string.replace(',,', ',')\r\n",
+					"modified_string = modified_string.replace('://', '#//')\r\n",
+					"\r\n",
+					"#modified_string = '{'+modified_string+'}'\r\n",
+					"#print(f'MS IS:{modified_string}')\r\n",
+					"#split_string = modified_string.split('}{')\r\n",
+					"#print(f'SS  is:{split_string}')\r\n",
+					"\r\n",
+					"list_of_dicts = []\r\n",
+					"for string_elem in split_string:\r\n",
+					"    #print(f'ele is:{string_elem}')\r\n",
+					"    # Assuming the strings represent key-value pairs separated by commas\r\n",
+					"    dict_elem = dict(item.split(':') for item in string_elem.split(','))\r\n",
+					"    list_of_dicts.append(dict_elem)\r\n",
+					"\r\n",
+					"# Display the list of dictionaries\r\n",
+					"for d in list_of_dicts:\r\n",
+					"   print(d)\r\n",
+					"\r\n",
+					"#cleaned_list_of_dicts = [{k.strip('\"'): v.strip('\"') for k, v in d.items()} for d in list_of_dicts]\r\n",
+					"cleaned_list_of_dicts = []\r\n",
+					"for d in list_of_dicts:\r\n",
+					"   cleaned_dict = {re.sub(r'[\"\\']', '', k): re.sub(r'[\"\\']', '', v).replace('#', ':') for k, v in d.items()}\r\n",
+					"   cleaned_list_of_dicts.append(cleaned_dict)\r\n",
+					"print(f'cln lis:{cleaned_list_of_dicts}')\r\n",
+					"\r\n",
+					"df = spark.createDataFrame(cleaned_list_of_dicts)\r\n",
+					"\r\n",
+					"# Show the DataFrame\r\n",
+					"df.show()\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"# In[ ]:\r\n",
+					"\r\n",
+					"\r\n",
+					"print('jbb')\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"avro_data = spark.read.format(\"avro\").load(\"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\")"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"avro_data.show()"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"###########################approach - 1 [least efficient]#############\r\n",
+					"#rows = avro_data.collect()\r\n",
+					"\r\n",
+					"# Convert each Row object to a dictionary and append to a list\r\n",
+					"#dict_list = [row.asDict() for row in rows]\r\n",
+					"\r\n",
+					"############################ approach-2 [efficiency moderate]#############333\r\n",
+					"\r\n",
+					"dict_list = avro_data.rdd.map(lambda row: row.asDict()).collect()\r\n",
+					"\r\n",
+					"############################# approach- 3 [most efficient] but not working############\r\n",
+					"'''\r\n",
+					"def process_partition(iter):\r\n",
+					"    dict_list = []\r\n",
+					"    for row in iter:\r\n",
+					"        dict_list.append(row.asDict())\r\n",
+					"    return dict_list\r\n",
+					"\r\n",
+					"# Convert DataFrame to RDD and apply foreachPartition() with the defined function\r\n",
+					"rdd = avro_data.rdd\r\n",
+					"dict_list = rdd.foreachPartition(process_partition)\r\n",
+					"\r\n",
+					"# Collect the results from foreachPartition() (this is optional and only for demonstration purposes)\r\n",
+					"final_dict_list = dict_list.collect()\r\n",
+					"\r\n",
+					"# Print the list of dictionaries\r\n",
+					"print(final_dict_list)'''\r\n",
+					"# Print the list of dictionaries\r\n",
+					"print(dict_list)"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"avro_data.write.format(\"avro\").save(\"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\")"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install fastavro"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import fastavro\r\n",
+					"avro_file_path = \"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\"\r\n",
+					"\r\n",
+					"# List to store the records\r\n",
+					"records_list = []\r\n",
+					"\r\n",
+					"# Open the Avro file and read records\r\n",
+					"with open(avro_file_path, \"rb\") as avro_file:\r\n",
+					"    reader = fastavro.reader(avro_file)\r\n",
+					"    for record in reader:\r\n",
+					"        records_list.append(record)\r\n",
+					"print(records_list)"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from adlfs import AzureBlobFileSystem\r\n",
+					"import fastavro\r\n",
+					"\r\n",
+					"def avro_to_dict(avro_file_path):\r\n",
+					"    # Initialize AzureBlobFileSystem with your ADLS Gen2 account details\r\n",
+					"    fs = AzureBlobFileSystem(account_name='<your-storage-account-name>', account_key='<your-storage-account-key>')\r\n",
+					"\r\n",
+					"    # Open Avro file\r\n",
+					"    with fs.open(avro_file_path, 'rb') as f:\r\n",
+					"        # Read Avro schema\r\n",
+					"        avro_reader = fastavro.reader(f)\r\n",
+					"        schema = avro_reader.schema\r\n",
+					"\r\n",
+					"        # Initialize an empty list to store dictionaries\r\n",
+					"        records = []\r\n",
+					"\r\n",
+					"        # Iterate over Avro records and convert them to dictionaries\r\n",
+					"        for record in avro_reader:\r\n",
+					"            records.append(record)\r\n",
+					"\r\n",
+					"    return records\r\n",
+					"\r\n",
+					"# Specify the path to your Avro file in ADLS Gen2\r\n",
+					"avro_file_path = 'your/adls/gen2/path/file.avro'\r\n",
+					"\r\n",
+					"# Call the function to convert Avro records to list of dictionaries\r\n",
+					"avro_records = avro_to_dict(avro_file_path)\r\n",
+					"\r\n",
+					"# Print the list of dictionaries\r\n",
+					"print(avro_records)\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				]
+			}
+		]
+	}
+}
