@@ -14,7 +14,7 @@
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
 			"blobPathBeginsWith": "/config/blobs/new/",
-			"blobPathEndsWith": ".json",
+			"blobPathEndsWith": "delete_data_lat.json",
 			"ignoreEmptyBlobs": true,
 			"scope": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Storage/storageAccounts/newadls8434",
 			"events": [
