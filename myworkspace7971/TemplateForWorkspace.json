@@ -371,7 +371,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -5155,7 +5155,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "45ce487f-7532-44df-838f-a44d01fa024c"
+						"spark.autotune.trackingId": "867df60f-7d83-40a8-b9ed-c9a3b3c33c46"
 					}
 				},
 				"metadata": {
@@ -5180,15 +5180,13 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"data = [(1,'sdcd','dcwdc'),(2,'sdcsdc','cdcsd')]\r\n",
 							"columns = ['id','name','school']\r\n",
