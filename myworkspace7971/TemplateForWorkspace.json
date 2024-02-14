@@ -384,7 +384,7 @@
 				"type": "BlobEventsTrigger",
 				"typeProperties": {
 					"blobPathBeginsWith": "/config/blobs/new/",
-					"blobPathEndsWith": ".json",
+					"blobPathEndsWith": "delete_data_lat.json",
 					"ignoreEmptyBlobs": true,
 					"scope": "[parameters('Trigger 1_properties_typeProperties_scope')]",
 					"events": [
