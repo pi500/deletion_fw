@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "myworkspace7971"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"AzureDataLakeStorage2_accountKey": {
+			"value": ""
+		},
+		"myworkspace7971-WorkspaceDefaultSqlServer_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:myworkspace7971.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://newadls8434.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStorage2_properties_typeProperties_url": {
+			"value": "https://newadls8434.dfs.core.windows.net/"
+		},
+		"myworkspace7971-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://newadls8434.dfs.core.windows.net"
+		},
+		"Trigger 1_properties_typeProperties_scope": {
+			"value": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Storage/storageAccounts/newadls8434"
+		}
+	}
+}

@@ -1,0 +1,5254 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "myworkspace7971"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
+		},
+		"AzureDataLakeStorage2_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage2'"
+		},
+		"myworkspace7971-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'myworkspace7971-WorkspaceDefaultSqlServer'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:myworkspace7971.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://newadls8434.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStorage2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://newadls8434.dfs.core.windows.net/"
+		},
+		"myworkspace7971-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://newadls8434.dfs.core.windows.net"
+		},
+		"Trigger 1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Storage/storageAccounts/newadls8434"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/mypool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.file_names",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Lookup1",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "new",
+												"wildcardFileName": {
+													"value": "@item()",
+													"type": "Expression"
+												},
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"dataset": {
+											"referenceName": "Json1",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "Execute Pipeline1",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Lookup1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Pipeline 1_copy1",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"look_up": {
+												"value": "@activity('Lookup1').output.value",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"file_names": {
+						"type": "array",
+						"defaultValue": [
+							"data_master_lat.json"
+						]
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-02-06T06:14:20Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/Json1')]",
+				"[concat(variables('workspaceId'), '/pipelines/Pipeline 1_copy1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Pipeline 1_copy1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "new",
+									"wildcardFileName": {
+										"value": "@pipeline().parameters.boo",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"boo": {
+						"type": "string",
+						"defaultValue": "data_master_lat.json"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-02-06T06:21:39Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/Json1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Json1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "config"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"data_node": {
+							"type": "string"
+						},
+						"data_product": {
+							"type": "string"
+						},
+						"ls_adls_url": {
+							"type": "string"
+						},
+						"data_zone": {
+							"type": "string"
+						},
+						"dest_folder": {
+							"type": "string"
+						},
+						"data_table": {
+							"type": "string"
+						},
+						"record_type": {
+							"type": "string"
+						},
+						"historical_container": {
+							"type": "string"
+						},
+						"config_container": {
+							"type": "string"
+						},
+						"adls2_account_name": {
+							"type": "string"
+						},
+						"audit_folder": {
+							"type": "string"
+						},
+						"data_format": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/AzureDataLakeStorage2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureDataLakeStorage2')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage2_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage2_accountKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/myworkspace7971-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('myworkspace7971-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/myworkspace7971-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('myworkspace7971-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Trigger 1')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Pipeline 1_copy1",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/config/blobs/new/",
+					"blobPathEndsWith": ".json",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('Trigger 1_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobDeleted",
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/Pipeline 1_copy1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 1')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "mypool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "ab003c14-e560-4743-a67a-5d4af78abb0e"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"synapse_widget": {
+						"version": "0.1",
+						"state": {
+							"3b4e7b2d-c607-4d39-9877-9ffbb8cfb159": {
+								"type": "Synapse.DataFrame",
+								"sync_state": {
+									"table": {
+										"rows": [
+											{
+												"0": "newadls8434",
+												"1": "audit",
+												"2": "config",
+												"3": "parquet",
+												"4": "IPN",
+												"5": "InvolvedParty",
+												"6": "PERSON",
+												"7": "historical",
+												"8": "contact",
+												"9": "historical",
+												"10": "https://newadls8434.dfs.core.windows.net/",
+												"11": "cust_id"
+											}
+										],
+										"schema": [
+											{
+												"key": "0",
+												"name": "adls2_account_name",
+												"type": "string"
+											},
+											{
+												"key": "1",
+												"name": "audit_folder",
+												"type": "string"
+											},
+											{
+												"key": "2",
+												"name": "config_container",
+												"type": "string"
+											},
+											{
+												"key": "3",
+												"name": "data_format",
+												"type": "string"
+											},
+											{
+												"key": "4",
+												"name": "data_node",
+												"type": "string"
+											},
+											{
+												"key": "5",
+												"name": "data_product",
+												"type": "string"
+											},
+											{
+												"key": "6",
+												"name": "data_table",
+												"type": "string"
+											},
+											{
+												"key": "7",
+												"name": "data_zone",
+												"type": "string"
+											},
+											{
+												"key": "8",
+												"name": "dest_folder",
+												"type": "string"
+											},
+											{
+												"key": "9",
+												"name": "historical_container",
+												"type": "string"
+											},
+											{
+												"key": "10",
+												"name": "ls_adls_url",
+												"type": "string"
+											},
+											{
+												"key": "11",
+												"name": "record_type",
+												"type": "string"
+											}
+										],
+										"truncated": false
+									},
+									"isSummary": false,
+									"language": "scala"
+								},
+								"persist_state": {
+									"view": {
+										"type": "details",
+										"chartOptions": {
+											"chartType": "bar",
+											"aggregationType": "count",
+											"categoryFieldKeys": [
+												"0"
+											],
+											"seriesFieldKeys": [
+												"0"
+											],
+											"isStacked": false
+										}
+									}
+								}
+							}
+						}
+					},
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+						"name": "mypool",
+						"type": "Spark",
+						"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install dbutils"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"source": [
+							"import json\r\n",
+							"import re \r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"\r\n",
+							"doo =  \"[{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}]\"\r\n",
+							"boo = json.loads(doo)\r\n",
+							"print(boo)"
+						],
+						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"bgg = spark.createDataFrame(boo)\r\n",
+							"bgg.show()\r\n",
+							"display(bgg)"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"delete_master = [{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"1\",\r\n",
+							"\"date\" : \"2024-01-01\"\r\n",
+							"},{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust\",\r\n",
+							"\"record_id\" : \"7\",\r\n",
+							"\"date\" : \"2024-01-01\",\r\n",
+							"\r\n",
+							"},\r\n",
+							"{\r\n",
+							"\"event_id\" : \"13\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"9\",\r\n",
+							"\"date\" : \"2024-01-02\",\r\n",
+							"\r\n",
+							"}]\r\n",
+							"\r\n",
+							"gg = spark.createDataFrame(delete_master)\r\n",
+							"gg.show()"
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"go = 'w'\r\n",
+							"new_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,2):\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_node = (row[4])\r\n",
+							"    data_product = (row[5])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    record_type = (row[11])\r\n",
+							"    print(adls)\r\n",
+							"    print(data_node)\r\n",
+							"    print(data_product)\r\n",
+							"    print(data_table)\r\n",
+							"    print(data_zone)\r\n",
+							"    print(dest_fol)\r\n",
+							"    print(record_type)\r\n",
+							"\r\n",
+							"    \r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print(name)\r\n",
+							"    #print(type(name))\r\n",
+							"    match = re.search(r'name=(\\w+)', name)\r\n",
+							"    name_value = match.group(1)\r\n",
+							"    print(name_value)\r\n",
+							"    #new_list.append(files_in_adls)\r\n",
+							"\r\n",
+							"#print(new_list[0])'''"
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"go = 'w'\r\n",
+							"\r\n",
+							"new_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_node = (row[4])\r\n",
+							"    data_product = (row[5])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    record_type = (row[11])\r\n",
+							"    print(adls)\r\n",
+							"    print(data_node)\r\n",
+							"    print(data_product)\r\n",
+							"    print(data_table)\r\n",
+							"    print(data_zone)\r\n",
+							"    print(dest_fol)\r\n",
+							"    print(record_type)\r\n",
+							"\r\n",
+							"    \r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print(name)\r\n",
+							"    #print(type(name))\r\n",
+							"    match = re.search(r'name=(\\w+)', name)\r\n",
+							"    name_value = match.group(1)\r\n",
+							"    print(name_value)\r\n",
+							"    new_list.append(name_value)\r\n",
+							"\r\n",
+							"print(new_list)'''"
+						],
+						"outputs": [],
+						"execution_count": 6
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''new_list = ['2023']\r\n",
+							"\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    for j in new_list:\r\n",
+							"            row = bgg.collect()[i]\r\n",
+							"            adls = (row[0])\r\n",
+							"            data_node = (row[4])\r\n",
+							"            data_product = (row[5])\r\n",
+							"            data_table = (row[6])\r\n",
+							"            data_zone = (row[7])\r\n",
+							"            dest_fol = (row[8])\r\n",
+							"            record_type = (row[11])\r\n",
+							"\r\n",
+							"            files__adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{j}/\")\r\n",
+							"            print(files__adls)\r\n",
+							"            name = str(files__adls)\r\n",
+							"            print(name)\r\n",
+							"            #print(type(name))\r\n",
+							"            match = re.search(r'name=(\\w+)', name)\r\n",
+							"            name_value = match.group(1)\r\n",
+							"            print(name_value)\r\n",
+							"'''\r\n",
+							"    \r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 7
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''value_to_save = bgg.filter(bgg.data_table == \"PHONE\").select(\"data_table\")\r\n",
+							"b = value_to_save.collect()\r\n",
+							"for i in b:\r\n",
+							"    noooo =(i[0])\r\n",
+							"print(type(noooo))'''"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''base_folder_path = f\"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net/path/to/your/folder/\"\r\n",
+							"\r\n",
+							"# Function to recursively list all folders\r\n",
+							"def list_folders_recursively(folder_path):\r\n",
+							"    folders = []\r\n",
+							"    for item in dbutils.fs.ls(folder_path):\r\n",
+							"        if item.isDir():\r\n",
+							"            folders.append(item.path)\r\n",
+							"            folders.extend(list_folders_recursively(item.path))\r\n",
+							"    return folders'''"
+						],
+						"outputs": [],
+						"execution_count": 9
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''from notebookutils import mssparkutils\r\n",
+							"files_in_adls= mssparkutils.fs.ls(\"abfss://Containername@adls.dfs.core.windows.net/COUNTRIES DETAIL/2021/\")'''"
+						],
+						"outputs": [],
+						"execution_count": 10
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''%pip install dbutils'''"
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''from notebookutils import mssparkutils\r\n",
+							"path = f\"abfss://historical@newadls8434.dfs.core.windows.net/\"\r\n",
+							"files_in_adls= mssparkutils.fs.ls(path, )\r\n",
+							"print(files_in_adls)'''"
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''print(files_in_adls)'''"
+						],
+						"outputs": [],
+						"execution_count": 13
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''from mssparkutils.fs import ls\r\n",
+							"\r\n",
+							"# Specify the path to the parent folder in ADLS\r\n",
+							"parent_folder_path = \"abfss://historical@newadls5434.dfs.core.windows.net/\"\r\n",
+							"\r\n",
+							"# List all files in the nested folder structure\r\n",
+							"all_files = mssparkutils.fs.ls(parent_folder_path)\r\n",
+							"\r\n",
+							"# Iterate over each file and print its name\r\n",
+							"for file_info in all_files:\r\n",
+							"    if file_info.isFile():\r\n",
+							"        file_name = file_info.name\r\n",
+							"        print(\"File name:\", file_name)\r\n",
+							"'''"
+						],
+						"outputs": [],
+						"execution_count": 14
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"go = 'w'\r\n",
+							"\r\n",
+							"year_list = []\r\n",
+							"\r\n",
+							"month_list = []\r\n",
+							"day_list = []\r\n",
+							"files_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    #print(type(name))\r\n",
+							"    match = re.search(r'name=(\\w+)', name)\r\n",
+							"    name_value = match.group(1)\r\n",
+							"    print(name_value)\r\n",
+							"    year_list.append(name_value)\r\n",
+							"    print('year list is :')\r\n",
+							"    print(year_list)\r\n",
+							"\r\n",
+							"    for j in range(len(year_list)):\r\n",
+							"        month_pre=[]\r\n",
+							"        files_in_adls1= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}\")\r\n",
+							"        print(len(files_in_adls1))\r\n",
+							"        name1 = str(files_in_adls1)\r\n",
+							"        if len(files_in_adls1) > 1 :\r\n",
+							"            name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"            month_pre = name1.split(',,')\r\n",
+							"        else:\r\n",
+							"            month_pre.append(name1)\r\n",
+							"        print('month_pre is')\r\n",
+							"        print(month_pre)\r\n",
+							"        #print(type(name))\r\n",
+							"        for d in month_pre:\r\n",
+							"            #print('d is:'+d)\r\n",
+							"            match1 = re.search(r'name=(\\w+)', d)\r\n",
+							"            name_value1 = match1.group(1)\r\n",
+							"            #print(name_value1)\r\n",
+							"            month_list.append(name_value1)\r\n",
+							"            print(' month is :')\r\n",
+							"            print(month_list)\r\n",
+							"\r\n",
+							"            for t in range(len(month_list)):\r\n",
+							"                day_pre =[]\r\n",
+							"                files_in_adls2= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}\")\r\n",
+							"                name2 = str(files_in_adls2)\r\n",
+							"                print(name2)\r\n",
+							"                if len(files_in_adls2) > 1 :\r\n",
+							"                    name2 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                    day_pre = name2.split(',,')\r\n",
+							"                else:\r\n",
+							"                    day_pre.append(name2)\r\n",
+							"                for s in day_pre:\r\n",
+							"                    match2 = re.search(r'name=(\\w+)', s)\r\n",
+							"                    name_value2 = match2.group(1)\r\n",
+							"                    print(name_value2)\r\n",
+							"                    day_list.append(name_value2)\r\n",
+							"                    print('day_list is')\r\n",
+							"                    print(day_list)\r\n",
+							"\r\n",
+							"                    for k in range(len(day_list)):\r\n",
+							"                        file_pre = []\r\n",
+							"                        files_in_adls3= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}/{day_list[k]}\")\r\n",
+							"                        name3 = str(files_in_adls3)\r\n",
+							"                        print(name3)\r\n",
+							"                        #print(type(name))\r\n",
+							"                        if len(files_in_adls3) > 1 :\r\n",
+							"                            name3 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                            file_pre = name3.split(',,')\r\n",
+							"                        else:\r\n",
+							"                            file_pre.append(name3)\r\n",
+							"                        for n in file_pre:\r\n",
+							"                            match3 = re.search(r'name=(\\w+)', n)\r\n",
+							"                            name_value3 = match3.group(1)\r\n",
+							"                            print(name_value3)\r\n",
+							"                            file_name_list.append(name_value3)\r\n",
+							"                            print('file list is:')\r\n",
+							"                            print(file_name_list)\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"'''"
+						],
+						"outputs": [],
+						"execution_count": 15
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''day_lis_lis.clear()'''"
+						],
+						"outputs": [],
+						"execution_count": 16
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"from pyspark.sql.types import *\r\n",
+							"\r\n",
+							"#year_list = []\r\n",
+							"result_list= []\r\n",
+							"month_list = []\r\n",
+							"day_list = []\r\n",
+							"files_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    year_list = []\r\n",
+							"    year_pre = []\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_format = (row[3])\r\n",
+							"    data_node = (row[4])\r\n",
+							"    data_product = (row[5])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    record_type = (row[11])\r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    if len(files_in_adls) > 1 :\r\n",
+							"        name = name.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"        year_pre = name.split(',,')\r\n",
+							"        print(f'year_pre:{year_pre}')\r\n",
+							"    else:\r\n",
+							"        year_pre.append(name)\r\n",
+							"    #print(type(name))\r\n",
+							"    for b in year_pre:\r\n",
+							"        match = re.search(r'name=(\\w+)', b)\r\n",
+							"        name_value = match.group(1)\r\n",
+							"        #print(name_value)\r\n",
+							"        year_list.append(name_value)\r\n",
+							"        #print('year list is :')\r\n",
+							"    print(year_list)\r\n",
+							"    print(f'table_name:{data_table}')\r\n",
+							"\r\n",
+							"    for j in range(len(year_list)):\r\n",
+							"        month_pre = []\r\n",
+							"        month_list = []\r\n",
+							"        pa = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}\"\r\n",
+							"        print(pa)\r\n",
+							"        files_in_adls1= mssparkutils.fs.ls(pa)\r\n",
+							"        print(len(files_in_adls1))\r\n",
+							"        name1 = str(files_in_adls1)\r\n",
+							"        print(f'name1: {name1}')\r\n",
+							"        if len(files_in_adls1) > 1 :\r\n",
+							"            name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"            month_pre = name1.split(',,')\r\n",
+							"        else:\r\n",
+							"            month_pre.append(name1)\r\n",
+							"        print('month_pre is')\r\n",
+							"        print(month_pre)\r\n",
+							"        \r\n",
+							"        for d in month_pre:\r\n",
+							"            #print('d is:'+d)\r\n",
+							"            match1 = re.search(r'name=(\\w+)', d)\r\n",
+							"            name_value1 = match1.group(1)\r\n",
+							"            #print(name_value1)\r\n",
+							"            month_list.append(name_value1)\r\n",
+							"        #print(' month is :')\r\n",
+							"        print(month_list)\r\n",
+							"        day_lis_lis = []\r\n",
+							"        for t in range(len(month_list)):\r\n",
+							"            day_list=[]\r\n",
+							"            files_in_adls2= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}\")\r\n",
+							"            name2 = str(files_in_adls2)\r\n",
+							"            print('name2 is:')\r\n",
+							"            print(name2)\r\n",
+							"            if len(files_in_adls2) > 1 :\r\n",
+							"                name2 = name2.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                day_pre = name2.split(',,')\r\n",
+							"                #print(f'day_pre is:{day_pre}')\r\n",
+							"            else:\r\n",
+							"                day_pre.append(name2)\r\n",
+							"            print('day_pre')\r\n",
+							"            print(day_pre)\r\n",
+							"            \r\n",
+							"            for s in day_pre:\r\n",
+							"                \r\n",
+							"                match2 = re.search(r'name=(\\w+)', s)\r\n",
+							"                name_value2 = match2.group(1)\r\n",
+							"                print('name_val2')\r\n",
+							"                print(name_value2)\r\n",
+							"                day_list.append(name_value2)\r\n",
+							"            \r\n",
+							"            day_lis_lis = day_list \r\n",
+							"            \r\n",
+							"            print('day_list is')\r\n",
+							"            print(day_lis_lis)\r\n",
+							"            #day_lis_lis = [['2','3']]\r\n",
+							"            for k in day_lis_lis:\r\n",
+							"                print(f'day_lis_lis is:{day_lis_lis}')\r\n",
+							"                print(f'k is:{k}')\r\n",
+							"                print(len(k))\r\n",
+							"                for g in range(len(k)):\r\n",
+							"                    \r\n",
+							"                    print(f'g is:{g}')\r\n",
+							"                    \r\n",
+							"                    print(f't:{t}')\r\n",
+							"                    print(f'j:{j}')\r\n",
+							"                    print(f'k[g]{k[g]}')\r\n",
+							"                    path = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}/{k}\"\r\n",
+							"                    print(f'path is:{path}')\r\n",
+							"                    files_in_adls3= mssparkutils.fs.ls(path)\r\n",
+							"                    name3 = str(files_in_adls3)\r\n",
+							"                    print('name3 is :')\r\n",
+							"                    print(name3)\r\n",
+							"                    \r\n",
+							"                    match3 = re.search(f'{data_table}/(.*?), name', name3)\r\n",
+							"                    name_value3 = match3.group(1)\r\n",
+							"                    \r\n",
+							"                    #print(f'val3 is:{name_value3}')\r\n",
+							"                    split_parts = name_value3.split('/')\r\n",
+							"                    \r\n",
+							"                    split_parts.extend([data_table,data_zone,data_node,data_product,data_format,dest_fol,adls])\r\n",
+							"                    \r\n",
+							"                    result_list .append(split_parts)\r\n",
+							"                    print(f'result_list_in:{result_list}')\r\n",
+							"\r\n",
+							"\r\n",
+							"print(f'result_list_out:{result_list}')   \r\n",
+							"my_schema = StructType([\r\n",
+							"    StructField(\"year\", StringType()),\r\n",
+							"    StructField(\"month\", StringType()),\r\n",
+							"    StructField(\"day\", StringType()),\r\n",
+							"    StructField(\"file_name\", StringType()),\r\n",
+							"    StructField(\"data_table\", StringType()),\r\n",
+							"    StructField(\"data_zone\", StringType()),\r\n",
+							"    StructField(\"data_node\", StringType()),\r\n",
+							"    StructField(\"data_product\", StringType()),\r\n",
+							"    StructField(\"data_format\", StringType()),\r\n",
+							"    StructField(\"dest_fol\", StringType()),\r\n",
+							"    StructField(\"adls\", StringType()),\r\n",
+							"    # Add more fields as needed\r\n",
+							"])  \r\n",
+							"\r\n",
+							"\r\n",
+							"new_df = spark.createDataFrame(data=result_list,schema=my_schema)\r\n",
+							"new_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 27
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"new_df= new_df.distinct()\r\n",
+							"new_df.show()"
+						],
+						"outputs": [],
+						"execution_count": 28
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import lit,when,col\r\n",
+							"df_with_default = new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"df_with_default.show()"
+						],
+						"outputs": [],
+						"execution_count": 29
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"gg.show()"
+						],
+						"outputs": [],
+						"execution_count": 26
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import lit,col,when\r\n",
+							"ma_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"net=df_with_default.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    my_df = df_with_default\r\n",
+							"    \r\n",
+							"    r_t =  dict_row['record_type']\r\n",
+							"    r_i = dict_row['record_id']\r\n",
+							"    e_i = dict_row['event_id']\r\n",
+							"    df_with_default = df_with_default.withColumn('record_type', lit(r_t))\r\n",
+							"    df_with_default = df_with_default.withColumn('record_id',lit(r_i))\r\n",
+							"    df_with_default = df_with_default.withColumn(\"event_id\",lit(e_i))\r\n",
+							"    df_with_default = df_with_default.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"    #df_with_default.show()\r\n",
+							"    ma_list.append(df_with_default)\r\n",
+							"\r\n",
+							"#df_with_default.show()\r\n",
+							"union_df1 = ma_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in ma_list[1:]:\r\n",
+							"    union_df1 = union_df1.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df = union_df1.distinct()\r\n",
+							"union_df1.show()\r\n",
+							"            \r\n",
+							"            "
+						],
+						"outputs": [],
+						"execution_count": 27
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"gg.show()"
+						],
+						"outputs": [],
+						"execution_count": 28
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import col,when,lit"
+						],
+						"outputs": [],
+						"execution_count": 29
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"union_df1.show()"
+						],
+						"outputs": [],
+						"execution_count": 30
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_with_default.show()"
+						],
+						"outputs": [],
+						"execution_count": 31
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"net=df_with_default.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    my_df = df_with_default.filter(df_with_default.record_type == dict_row['record_type'])\r\n",
+							"    for p in range(my_df.count()):\r\n",
+							"        print(f'p is:{p}')\r\n",
+							"        my_rows = union_df1.collect()[p]\r\n",
+							"        print(my_rows)\r\n",
+							"        year = (my_rows[0])\r\n",
+							"        month = (my_rows[1])\r\n",
+							"        day = (my_rows[2])\r\n",
+							"        file_name = (my_rows[3])\r\n",
+							"        data_table = (my_rows[4])\r\n",
+							"        data_zone = (my_rows[5])\r\n",
+							"        data_node = (my_rows[6])\r\n",
+							"        data_product = (my_rows[7])\r\n",
+							"        dest_format = (my_rows[8])\r\n",
+							"        dest_fol= (my_rows[9])\r\n",
+							"        adls = (my_rows[10])\r\n",
+							"        status = (my_rows[11])\r\n",
+							"        record_type = (my_rows[12])\r\n",
+							"        record_id = (my_rows[13])\r\n",
+							"        event_id =(my_rows[14])\r\n",
+							"        input_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/{file_name}'\r\n",
+							"        #input_adls_path= 'abfss://historical@newadls8434.dfs.core.windows.net/contact/PERSON/2023/10/2/part-00000-f47e731e-0a2b-44a8-8e7a-8dc8bfe6726c-c000.snappy.parquet'\r\n",
+							"        output_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/'\r\n",
+							"        print(input_adls_path)\r\n",
+							"        check_df = spark.read.parquet(input_adls_path)\r\n",
+							"        columns = check_df.columns\r\n",
+							"        #print(columns)\r\n",
+							"        if  dict_row['record_type'] in columns:\r\n",
+							"            count1 = check_df.count()\r\n",
+							"            #print(count1)\r\n",
+							"            \r\n",
+							"            check_df = check_df.filter(col(dict_row['record_type']) != dict_row['record_id'])\r\n",
+							"            #check_df = check_df.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"            #check_df.show()\r\n",
+							"            count2 = check_df.count()\r\n",
+							"            #print(count2)\r\n",
+							"            if count1 != count2:\r\n",
+							"                try:\r\n",
+							"                    #print(output_adls_path)\r\n",
+							"                    #check_df.write.format('parquet').mode('overwrite').save(output_adls_path)\r\n",
+							"                    df_with_default = df_with_default.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'deleted').otherwise(col('status')))\r\n",
+							"                    df_with_default = df_with_default.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"                    df_with_default = df_with_default.withColumn(\"event_id\",lit(dict_row['event_id']))\r\n",
+							"                    \r\n",
+							"                    #df_with_default.show()\r\n",
+							"                except Exception as e:\r\n",
+							"                    print(f\"Error during write operation: {e}\")\r\n",
+							"            else:\r\n",
+							"                print('record id not found')\r\n",
+							"                df_with_default = df_with_default.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"                df_with_default = df_with_default.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"                df_with_default = df_with_default.withColumn(\"event_id\",lit(dict_row['event_id']))\r\n",
+							"        else:\r\n",
+							"            print('rrecord_type not found')\r\n",
+							"            df_with_default = df_with_default.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"            df_with_default = df_with_default.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"            df_with_default = df_with_default.withColumn(\"event_id\",lit(dict_row['event_id']))\r\n",
+							"\r\n",
+							"\r\n",
+							"    df_list.append(df_with_default)\r\n",
+							"    print(f'df_with:{i}')\r\n",
+							"    df_with_default.show()\r\n",
+							"    df_with_default = df_with_default.distinct()\r\n",
+							"    \r\n",
+							"union_df = df_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in df_list[1:]:\r\n",
+							"    union_df = union_df.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df = union_df.distinct()\r\n",
+							"\r\n",
+							"union_df.show()\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 32
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"union_df1.show()"
+						],
+						"outputs": [],
+						"execution_count": 33
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"net=df_with_default.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    my_df = df_with_default.filter(df_with_default.record_type == dict_row['record_type'])\r\n",
+							"    for p in range(my_df.count()):\r\n",
+							"        print(f'p is:{p}')\r\n",
+							"        my_rows = union_df1.collect()[p]\r\n",
+							"        print(my_rows)\r\n",
+							"        year = (my_rows[0])\r\n",
+							"        month = (my_rows[1])\r\n",
+							"        day = (my_rows[2])\r\n",
+							"        file_name = (my_rows[3])\r\n",
+							"        data_table = (my_rows[4])\r\n",
+							"        data_zone = (my_rows[5])\r\n",
+							"        data_node = (my_rows[6])\r\n",
+							"        data_product = (my_rows[7])\r\n",
+							"        dest_format = (my_rows[8])\r\n",
+							"        dest_fol= (my_rows[9])\r\n",
+							"        adls = (my_rows[10])\r\n",
+							"        status = (my_rows[11])\r\n",
+							"        record_type = (my_rows[12])\r\n",
+							"        record_id = (my_rows[13])\r\n",
+							"        event_id =(my_rows[14])\r\n",
+							"        input_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/{file_name}'\r\n",
+							"        #input_adls_path= 'abfss://historical@newadls8434.dfs.core.windows.net/contact/PERSON/2023/10/2/part-00000-f47e731e-0a2b-44a8-8e7a-8dc8bfe6726c-c000.snappy.parquet'\r\n",
+							"        output_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/'\r\n",
+							"        print(input_adls_path)\r\n",
+							"        check_df = spark.read.parquet(input_adls_path)\r\n",
+							"        columns = check_df.columns\r\n",
+							"        #print(columns)\r\n",
+							"        if  dict_row['record_type'] in columns:\r\n",
+							"            count1 = check_df.count()\r\n",
+							"            #print(count1)\r\n",
+							"            \r\n",
+							"            check_df = check_df.filter(col(dict_row['record_type']) != dict_row['record_id'])\r\n",
+							"            #check_df = check_df.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"            #check_df.show()\r\n",
+							"            count2 = check_df.count()\r\n",
+							"            #print(count2)\r\n",
+							"            if count1 != count2:\r\n",
+							"                try:\r\n",
+							"                    #print(output_adls_path)\r\n",
+							"                    #check_df.write.format('parquet').mode('overwrite').save(output_adls_path)\r\n",
+							"                    df_with_default = df_with_default.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'deleted').otherwise(col('status')))\r\n",
+							"                    df_with_default = df_with_default.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"                    df_with_default = df_with_default.withColumn(\"event_id\",lit(dict_row['event_id']))\r\n",
+							"                    \r\n",
+							"                    #df_with_default.show()\r\n",
+							"                except Exception as e:\r\n",
+							"                    print(f\"Error during write operation: {e}\")\r\n",
+							"            else:\r\n",
+							"                print('record id not found')\r\n",
+							"                df_with_default = df_with_default.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"                df_with_default = df_with_default.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"                df_with_default = df_with_default.withColumn(\"event_id\",lit(dict_row['event_id']))\r\n",
+							"        else:\r\n",
+							"            print('rrecord_type not found')\r\n",
+							"            df_with_default = df_with_default.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"            df_with_default = df_with_default.withColumn(\"record_id\",lit(dict_row['record_id']))\r\n",
+							"            df_with_default = df_with_default.withColumn(\"event_id\",lit(dict_row['event_id']))\r\n",
+							"\r\n",
+							"\r\n",
+							"    df_list.append(df_with_default)\r\n",
+							"    print(f'df_with:{i}')\r\n",
+							"    df_with_default.show()\r\n",
+							"    df_with_default = df_with_default.distinct()\r\n",
+							"    \r\n",
+							"union_df = df_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in df_list[1:]:\r\n",
+							"    union_df = union_df.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df = union_df.distinct()\r\n",
+							"union_df.show()\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 34
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import lit\r\n",
+							"ma_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"net=df_with_default.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    my_df = df_with_default\r\n",
+							"    \r\n",
+							"    r_t =  dict_row['record_type']\r\n",
+							"    r_i = dict_row['record_id']\r\n",
+							"    e_i = dict_row['event_id']\r\n",
+							"    df_with_default = df_with_default.withColumn('record_type', lit(r_t))\r\n",
+							"    df_with_default = df_with_default.withColumn('record_id',lit(r_i))\r\n",
+							"    df_with_default = df_with_default.withColumn(\"event_id\",lit(e_i))\r\n",
+							"    df_with_default = df_with_default.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"    #df_with_default.show()\r\n",
+							"    ma_list.append(df_with_default)\r\n",
+							"\r\n",
+							"#df_with_default.show()\r\n",
+							"union_df1 = ma_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in ma_list[1:]:\r\n",
+							"    union_df1 = union_df1.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df1 = union_df1.distinct()\r\n",
+							"union_df1.show()\r\n",
+							"            \r\n",
+							"            "
+						],
+						"outputs": [],
+						"execution_count": 35
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"noo1 = len(gg.collect())\r\n",
+							"lis_list = []\r\n",
+							"for i in range(noo1):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(f'i  :{i}')\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    print(dict_row)\r\n",
+							"    print(dict_row['record_type'])\r\n",
+							"    print(dict_row['record_id'])\r\n",
+							"    union_df_new = union_df1\r\n",
+							"    union_df_new = union_df1.filter((union_df1.record_type == dict_row['record_type']) & (union_df1.record_id == dict_row['record_id']))\r\n",
+							"    #union_df_new.show()\r\n",
+							"    if union_df_new.count() > 0:\r\n",
+							"        print(union_df1.count())\r\n",
+							"        for p in range(union_df_new.count()):\r\n",
+							"            print(f'p is:{p}') \r\n",
+							"            my_rows = union_df_new.collect()[p]\r\n",
+							"            print(my_rows)\r\n",
+							"            year = (my_rows[0])\r\n",
+							"            month = (my_rows[1])\r\n",
+							"            day = (my_rows[2])\r\n",
+							"            file_name = (my_rows[3])\r\n",
+							"            data_table = (my_rows[4])\r\n",
+							"            data_zone = (my_rows[5])\r\n",
+							"            data_node = (my_rows[6])\r\n",
+							"            data_product = (my_rows[7])\r\n",
+							"            dest_format = (my_rows[8])\r\n",
+							"            dest_fol= (my_rows[9])\r\n",
+							"            adls = (my_rows[10])\r\n",
+							"            status = (my_rows[11])\r\n",
+							"            record_type = (my_rows[12])\r\n",
+							"            record_id = (my_rows[13])\r\n",
+							"            print(f'record_id :{record_id}')\r\n",
+							"            event_id =(my_rows[14])\r\n",
+							"            input_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/{file_name}'\r\n",
+							"            #input_adls_path= 'abfss://historical@newadls8434.dfs.core.windows.net/contact/PERSON/2023/10/2/part-00000-f47e731e-0a2b-44a8-8e7a-8dc8bfe6726c-c000.snappy.parquet'\r\n",
+							"            output_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/'\r\n",
+							"            print(input_adls_path)\r\n",
+							"            check_df = spark.read.parquet(input_adls_path)\r\n",
+							"            columns = check_df.columns\r\n",
+							"            #print(columns)\r\n",
+							"            if  record_type in columns:\r\n",
+							"                count1 = check_df.count()\r\n",
+							"                #print(count1)\r\n",
+							"                \r\n",
+							"                check_df = check_df.filter(col(record_type) != record_id)\r\n",
+							"                \r\n",
+							"                count2 = check_df.count()\r\n",
+							"                #print(count2)\r\n",
+							"                if count1 != count2:\r\n",
+							"                    check_df.write.mode(\"overwrite\").parquet(output_adls_path)\r\n",
+							"                    union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year) & (col('record_id') == record_id), 'deleted').otherwise(col('status')))\r\n",
+							"                    #union_df_new.show()\r\n",
+							"                else:\r\n",
+							"                    #print('record id not found')\r\n",
+							"                    union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year) & (col('record_id') == record_id), 'not found').otherwise(col('status')))\r\n",
+							"                    #union_df_new.show()\r\n",
+							"            else:\r\n",
+							"                #print('rrecord_type not found')\r\n",
+							"                union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"                print('ddd')\r\n",
+							"                #union_df_new.show()\r\n",
+							"            \r\n",
+							"        #union_df_new.show()\r\n",
+							"        lis_list.append(union_df_new)\r\n",
+							"\r\n",
+							"#for i in lis_list:\r\n",
+							"    #i.show()        \r\n",
+							"union_df2 = lis_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"#union_df2.show()\r\n",
+							"for df in lis_list[1:]:\r\n",
+							"    union_df2 = union_df2.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df2 = union_df2.distinct()\r\n",
+							"union_df2.show()        \r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"union_df1.show()"
+						],
+						"outputs": [],
+						"execution_count": 37
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''import json\r\n",
+							"doo =  \"[{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"},{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PHONE\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}]\"\r\n",
+							"boo = json.loads(doo)\r\n",
+							"print(boo)\r\n",
+							"\r\n",
+							"bgg = spark.createDataFrame(boo)\r\n",
+							"bgg.show()\r\n",
+							"display(bgg)\r\n",
+							"\r\n",
+							"\r\n",
+							"'''"
+						],
+						"outputs": [],
+						"execution_count": 38
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"## pre-audit NB code\r\n",
+							"import json\r\n",
+							"import re \r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"delete_master = [{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"1\",\r\n",
+							"\"date\" : \"2024-01-01\"\r\n",
+							"},{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust\",\r\n",
+							"\"record_id\" : \"7\",\r\n",
+							"\"date\" : \"2024-01-01\",\r\n",
+							"\r\n",
+							"},\r\n",
+							"{\r\n",
+							"\"event_id\" : \"13\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"9\",\r\n",
+							"\"date\" : \"2024-01-02\",\r\n",
+							"\r\n",
+							"}]\r\n",
+							"\r\n",
+							"gg = spark.createDataFrame(delete_master)\r\n",
+							"gg.show()\r\n",
+							"\r\n",
+							"doo =  \"[{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}]\"\r\n",
+							"boo = json.loads(doo)\r\n",
+							"#print(boo)\r\n",
+							"\r\n",
+							"bgg = spark.createDataFrame(boo)\r\n",
+							"#bgg.show()\r\n",
+							"display(bgg)\r\n",
+							"\r\n",
+							"import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"from pyspark.sql.types import *\r\n",
+							"\r\n",
+							"year_list = []\r\n",
+							"result_list= []\r\n",
+							"month_list = []\r\n",
+							"day_list = []\r\n",
+							"files_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    year_list = []\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_format = (row[3])\r\n",
+							"    data_node = (row[4])\r\n",
+							"    data_product = (row[5])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    record_type = (row[11])\r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    #print(type(name))\r\n",
+							"    match = re.search(r'name=(\\w+)', name)\r\n",
+							"    name_value = match.group(1)\r\n",
+							"    #print(name_value)\r\n",
+							"    year_list.append(name_value)\r\n",
+							"    #print('year list is :')\r\n",
+							"    print(year_list)\r\n",
+							"    print(f'table_name:{data_table}')\r\n",
+							"\r\n",
+							"    for j in range(len(year_list)):\r\n",
+							"        month_pre = []\r\n",
+							"        month_list = []\r\n",
+							"        pa = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}\"\r\n",
+							"        print(pa)\r\n",
+							"        files_in_adls1= mssparkutils.fs.ls(pa)\r\n",
+							"        print(len(files_in_adls1))\r\n",
+							"        name1 = str(files_in_adls1)\r\n",
+							"        print(f'name1: {name1}')\r\n",
+							"        if len(files_in_adls1) > 1 :\r\n",
+							"            name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"            month_pre = name1.split(',,')\r\n",
+							"        else:\r\n",
+							"            month_pre.append(name1)\r\n",
+							"        print('month_pre is')\r\n",
+							"        print(month_pre)\r\n",
+							"        \r\n",
+							"        for d in month_pre:\r\n",
+							"            #print('d is:'+d)\r\n",
+							"            match1 = re.search(r'name=(\\w+)', d)\r\n",
+							"            name_value1 = match1.group(1)\r\n",
+							"            #print(name_value1)\r\n",
+							"            month_list.append(name_value1)\r\n",
+							"        #print(' month is :')\r\n",
+							"        print(month_list)\r\n",
+							"        day_lis_lis = []\r\n",
+							"        for t in range(len(month_list)):\r\n",
+							"            day_list=[]\r\n",
+							"            files_in_adls2= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}\")\r\n",
+							"            name2 = str(files_in_adls2)\r\n",
+							"            print('name2 is:')\r\n",
+							"            print(name2)\r\n",
+							"            if len(files_in_adls2) > 1 :\r\n",
+							"                name2 = name2.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                day_pre = name2.split(',,')\r\n",
+							"            else:\r\n",
+							"                day_pre.append(name2)\r\n",
+							"            print('day_pre')\r\n",
+							"            print(day_pre)\r\n",
+							"            \r\n",
+							"            for s in day_pre:\r\n",
+							"                \r\n",
+							"                match2 = re.search(r'name=(\\w+)', s)\r\n",
+							"                name_value2 = match2.group(1)\r\n",
+							"                print('name_val2')\r\n",
+							"                print(name_value2)\r\n",
+							"                day_list.append(name_value2)\r\n",
+							"            \r\n",
+							"            day_lis_lis = day_list \r\n",
+							"            \r\n",
+							"            print('day_list is')\r\n",
+							"            print(day_lis_lis)\r\n",
+							"            #day_lis_lis = [['2','3']]\r\n",
+							"            for k in day_lis_lis:\r\n",
+							"                print(f'day_lis_lis is:{day_lis_lis}')\r\n",
+							"                print(f'k is:{k}')\r\n",
+							"                print(len(k))\r\n",
+							"                for g in range(len(k)):\r\n",
+							"                    \r\n",
+							"                    print(f'g is:{g}')\r\n",
+							"                    \r\n",
+							"                    print(f't:{t}')\r\n",
+							"                    print(f'j:{j}')\r\n",
+							"                    print(f'k[g]{k[g]}')\r\n",
+							"                    path = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}/{k}\"\r\n",
+							"                    print(f'path is:{path}')\r\n",
+							"                    files_in_adls3= mssparkutils.fs.ls(path)\r\n",
+							"                    name3 = str(files_in_adls3)\r\n",
+							"                    print('name3 is :')\r\n",
+							"                    print(name3)\r\n",
+							"                    \r\n",
+							"                    match3 = re.search(f'{data_table}/(.*?), name', name3)\r\n",
+							"                    name_value3 = match3.group(1)\r\n",
+							"                    \r\n",
+							"                    #print(f'val3 is:{name_value3}')\r\n",
+							"                    split_parts = name_value3.split('/')\r\n",
+							"                    \r\n",
+							"                    split_parts.extend([data_table,data_zone,data_node,data_product,data_format,dest_fol,adls])\r\n",
+							"                    \r\n",
+							"                    result_list .append(split_parts)\r\n",
+							"                    print(f'result_list_in:{result_list}')\r\n",
+							"\r\n",
+							"\r\n",
+							"print(f'result_list_out:{result_list}')   \r\n",
+							"my_schema = StructType([\r\n",
+							"    StructField(\"year\", StringType()),\r\n",
+							"    StructField(\"month\", StringType()),\r\n",
+							"    StructField(\"day\", StringType()),\r\n",
+							"    StructField(\"file_name\", StringType()),\r\n",
+							"    StructField(\"data_table\", StringType()),\r\n",
+							"    StructField(\"data_zone\", StringType()),\r\n",
+							"    StructField(\"data_node\", StringType()),\r\n",
+							"    StructField(\"data_product\", StringType()),\r\n",
+							"    StructField(\"data_format\", StringType()),\r\n",
+							"    StructField(\"dest_fol\", StringType()),\r\n",
+							"    StructField(\"adls\", StringType()),\r\n",
+							"    # Add more fields as needed\r\n",
+							"])  \r\n",
+							"\r\n",
+							"\r\n",
+							"new_df = spark.createDataFrame(data=result_list,schema=my_schema)\r\n",
+							"new_df= new_df.distinct()\r\n",
+							"#new_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"new_df= new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"\r\n",
+							"\r\n",
+							"from pyspark.sql.functions import lit,col,when\r\n",
+							"ma_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"#net=new_df.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    #my_df = df_with_default\r\n",
+							"    \r\n",
+							"    r_t =  dict_row['record_type']\r\n",
+							"    r_i = dict_row['record_id']\r\n",
+							"    e_i = dict_row['event_id']\r\n",
+							"    new_df = new_df.withColumn('record_type', lit(r_t))\r\n",
+							"    new_df = new_df.withColumn('record_id',lit(r_i))\r\n",
+							"    new_df = new_df.withColumn(\"event_id\",lit(e_i))\r\n",
+							"    new_df = new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"    #df_with_default.show()\r\n",
+							"    ma_list.append(new_df)\r\n",
+							"\r\n",
+							"#df_with_default.show()\r\n",
+							"union_df1 = ma_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in ma_list[1:]:\r\n",
+							"    union_df1 = union_df1.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df = union_df1.distinct()\r\n",
+							"union_df1.show()\r\n",
+							"            \r\n",
+							"            \r\n",
+							""
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## core deleetion NB code\r\n",
+							"\r\n",
+							"noo1 = len(gg.collect())\r\n",
+							"lis_list = []\r\n",
+							"for i in range(noo1):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(f'i  :{i}')\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    print(dict_row)\r\n",
+							"    print(dict_row['record_type'])\r\n",
+							"    print(dict_row['record_id'])\r\n",
+							"    union_df_new = union_df1\r\n",
+							"    union_df_new = union_df1.filter((union_df1.record_type == dict_row['record_type']) & (union_df1.record_id == dict_row['record_id']))\r\n",
+							"    #union_df_new.show()\r\n",
+							"    if union_df_new.count() > 0:\r\n",
+							"        print(union_df1.count())\r\n",
+							"        for p in range(union_df_new.count()):\r\n",
+							"            print(f'p is:{p}') \r\n",
+							"            my_rows = union_df_new.collect()[p]\r\n",
+							"            print(my_rows)\r\n",
+							"            year = (my_rows[0])\r\n",
+							"            month = (my_rows[1])\r\n",
+							"            day = (my_rows[2])\r\n",
+							"            file_name = (my_rows[3])\r\n",
+							"            data_table = (my_rows[4])\r\n",
+							"            data_zone = (my_rows[5])\r\n",
+							"            data_node = (my_rows[6])\r\n",
+							"            data_product = (my_rows[7])\r\n",
+							"            dest_format = (my_rows[8])\r\n",
+							"            dest_fol= (my_rows[9])\r\n",
+							"            adls = (my_rows[10])\r\n",
+							"            status = (my_rows[11])\r\n",
+							"            record_type = (my_rows[12])\r\n",
+							"            record_id = (my_rows[13])\r\n",
+							"            print(f'record_id :{record_id}')\r\n",
+							"            event_id =(my_rows[14])\r\n",
+							"            input_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/{file_name}'\r\n",
+							"            #input_adls_path= 'abfss://historical@newadls8434.dfs.core.windows.net/contact/PERSON/2023/10/2/part-00000-f47e731e-0a2b-44a8-8e7a-8dc8bfe6726c-c000.snappy.parquet'\r\n",
+							"            output_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/'\r\n",
+							"            print(input_adls_path)\r\n",
+							"            check_df = spark.read.parquet(input_adls_path)\r\n",
+							"            columns = check_df.columns\r\n",
+							"            #print(columns)\r\n",
+							"            if  record_type in columns:\r\n",
+							"                count1 = check_df.count()\r\n",
+							"                #print(count1)\r\n",
+							"                \r\n",
+							"                check_df = check_df.filter(col(record_type) != record_id)\r\n",
+							"                \r\n",
+							"                count2 = check_df.count()\r\n",
+							"                #print(count2)\r\n",
+							"                if count1 != count2:\r\n",
+							"                    union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year) & (col('record_id') == record_id), 'deleted').otherwise(col('status')))\r\n",
+							"                    #union_df_new.show()\r\n",
+							"                else:\r\n",
+							"                    #print('record id not found')\r\n",
+							"                    union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year) & (col('record_id') == record_id), 'not found').otherwise(col('status')))\r\n",
+							"                    #union_df_new.show()\r\n",
+							"            else:\r\n",
+							"                #print('rrecord_type not found')\r\n",
+							"                union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"                print('ddd')\r\n",
+							"                #union_df_new.show()\r\n",
+							"            \r\n",
+							"        union_df_new.show()\r\n",
+							"        lis_list.append(union_df_new)\r\n",
+							"\r\n",
+							"#for i in lis_list:\r\n",
+							"    #i.show()        \r\n",
+							"union_df2 = lis_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"#union_df2.show()\r\n",
+							"for df in lis_list[1:]:\r\n",
+							"    union_df2 = union_df2.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df2 = union_df2.distinct()\r\n",
+							"union_df2.show()     \r\n",
+							"union_df1.show()   \r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 2')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "mypool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "683db361-709c-4d96-b44b-7db2ae584120"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"synapse_widget": {
+						"version": "0.1",
+						"state": {
+							"12ecfcc3-9aff-402b-b77a-011235225675": {
+								"type": "Synapse.DataFrame",
+								"sync_state": {
+									"table": {
+										"rows": [
+											{
+												"0": "newadls8434",
+												"1": "audit",
+												"2": "config",
+												"3": "parquet",
+												"4": "IPN",
+												"5": "InvolvedParty",
+												"6": "PHONE",
+												"7": "historical",
+												"8": "core/contact",
+												"9": "historical",
+												"10": "https://newadls8434.dfs.core.windows.net/",
+												"11": "cust_id"
+											}
+										],
+										"schema": [
+											{
+												"key": "0",
+												"name": "adls2_account_name",
+												"type": "string"
+											},
+											{
+												"key": "1",
+												"name": "audit_folder",
+												"type": "string"
+											},
+											{
+												"key": "2",
+												"name": "config_container",
+												"type": "string"
+											},
+											{
+												"key": "3",
+												"name": "data_format",
+												"type": "string"
+											},
+											{
+												"key": "4",
+												"name": "data_node",
+												"type": "string"
+											},
+											{
+												"key": "5",
+												"name": "data_product",
+												"type": "string"
+											},
+											{
+												"key": "6",
+												"name": "data_table",
+												"type": "string"
+											},
+											{
+												"key": "7",
+												"name": "data_zone",
+												"type": "string"
+											},
+											{
+												"key": "8",
+												"name": "dest_folder",
+												"type": "string"
+											},
+											{
+												"key": "9",
+												"name": "historical_container",
+												"type": "string"
+											},
+											{
+												"key": "10",
+												"name": "ls_adls_url",
+												"type": "string"
+											},
+											{
+												"key": "11",
+												"name": "record_type",
+												"type": "string"
+											}
+										],
+										"truncated": false
+									},
+									"isSummary": false,
+									"language": "scala"
+								},
+								"persist_state": {
+									"view": {
+										"type": "details",
+										"chartOptions": {
+											"chartType": "bar",
+											"aggregationType": "count",
+											"categoryFieldKeys": [
+												"0"
+											],
+											"seriesFieldKeys": [
+												"0"
+											],
+											"isStacked": false
+										}
+									}
+								}
+							}
+						}
+					},
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+						"name": "mypool",
+						"type": "Spark",
+						"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"print('hi')"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import col,when,lit\r\n",
+							"import json\r\n",
+							"import re \r\n",
+							"from notebookutils import mssparkutils"
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"## pre-audit NB code\r\n",
+							"from pyspark.sql.functions import col,when,lit\r\n",
+							"import json\r\n",
+							"import re \r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"delete_master = [{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"1\",\r\n",
+							"\"date\" : \"2024-01-01\"\r\n",
+							"},{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust\",\r\n",
+							"\"record_id\" : \"7\",\r\n",
+							"\"date\" : \"2024-01-01\",\r\n",
+							"\r\n",
+							"},\r\n",
+							"{\r\n",
+							"\"event_id\" : \"13\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"9\",\r\n",
+							"\"date\" : \"2024-01-02\",\r\n",
+							"\r\n",
+							"}]\r\n",
+							"\r\n",
+							"gg = spark.createDataFrame(delete_master)\r\n",
+							"gg.show()\r\n",
+							"\r\n",
+							"#doo =  \"[{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}]\"\r\n",
+							"doo = doo.replace('{', '[{')\r\n",
+							"doo = doo.replace('}', '}]')\r\n",
+							"print(doo)\r\n",
+							"boo = json.loads(doo)\r\n",
+							"\r\n",
+							"print(f'boo:{boo}')\r\n",
+							"print(type(boo))\r\n",
+							"\r\n",
+							"bgg = spark.createDataFrame(boo)\r\n",
+							"#bgg.show()\r\n",
+							"display(bgg)\r\n",
+							"\r\n",
+							"import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"from pyspark.sql.types import *\r\n",
+							"\r\n",
+							"year_list = []\r\n",
+							"result_list= []\r\n",
+							"month_list = []\r\n",
+							"day_list = []\r\n",
+							"files_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    year_list = []\r\n",
+							"    year_pre = []\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_format = (row[3])\r\n",
+							"    data_node = (row[4])\r\n",
+							"    data_product = (row[5])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    record_type = (row[11])\r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    if len(files_in_adls) > 1 :\r\n",
+							"        name = name.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"        year_pre = name.split(',,')\r\n",
+							"        print(f'year_pre:{year_pre}')\r\n",
+							"    else:\r\n",
+							"        year_pre.append(name)\r\n",
+							"    #print(type(name))\r\n",
+							"    for b in year_pre:\r\n",
+							"        match = re.search(r'name=(\\w+)', b)\r\n",
+							"        name_value = match.group(1)\r\n",
+							"        #print(name_value)\r\n",
+							"        year_list.append(name_value)\r\n",
+							"        #print('year list is :')\r\n",
+							"    print(year_list)\r\n",
+							"    print(f'table_name:{data_table}')\r\n",
+							"\r\n",
+							"    for j in range(len(year_list)):\r\n",
+							"        month_pre = []\r\n",
+							"        month_list = []\r\n",
+							"        pa = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}\"\r\n",
+							"        print(pa)\r\n",
+							"        files_in_adls1= mssparkutils.fs.ls(pa)\r\n",
+							"        print(len(files_in_adls1))\r\n",
+							"        name1 = str(files_in_adls1)\r\n",
+							"        print(f'name1: {name1}')\r\n",
+							"        if len(files_in_adls1) > 1 :\r\n",
+							"            name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"            month_pre = name1.split(',,')\r\n",
+							"        else:\r\n",
+							"            month_pre.append(name1)\r\n",
+							"        print('month_pre is')\r\n",
+							"        print(month_pre)\r\n",
+							"        \r\n",
+							"        for d in month_pre:\r\n",
+							"            #print('d is:'+d)\r\n",
+							"            match1 = re.search(r'name=(\\w+)', d)\r\n",
+							"            name_value1 = match1.group(1)\r\n",
+							"            #print(name_value1)\r\n",
+							"            month_list.append(name_value1)\r\n",
+							"        #print(' month is :')\r\n",
+							"        print(month_list)\r\n",
+							"        \r\n",
+							"        for t in range(len(month_list)):\r\n",
+							"            day_lis_lis = []\r\n",
+							"            day_list=[]\r\n",
+							"            day_pre =[]\r\n",
+							"            files_in_adls2= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}\")\r\n",
+							"            name2 = str(files_in_adls2)\r\n",
+							"            print('name2 is:')\r\n",
+							"            print(name2)\r\n",
+							"            if len(files_in_adls2) > 1 :\r\n",
+							"                name2 = name2.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                day_pre = name2.split(',,')\r\n",
+							"            else:\r\n",
+							"                day_pre.append(name2)\r\n",
+							"            print('day_pre')\r\n",
+							"            print(day_pre)\r\n",
+							"            \r\n",
+							"            for s in day_pre:\r\n",
+							"                \r\n",
+							"                match2 = re.search(r'name=(\\w+)', s)\r\n",
+							"                name_value2 = match2.group(1)\r\n",
+							"                print('name_val2')\r\n",
+							"                print(name_value2)\r\n",
+							"                day_list.append(name_value2)\r\n",
+							"            \r\n",
+							"            day_lis_lis.append(day_list )\r\n",
+							"            \r\n",
+							"            print('day_list is')\r\n",
+							"            print(day_lis_lis)\r\n",
+							"            #day_lis_lis = [['2','3']]\r\n",
+							"            for k in day_lis_lis:\r\n",
+							"                print(f'day_lis_lis is:{day_lis_lis}')\r\n",
+							"                print(f'k is:{k}')\r\n",
+							"                print(len(k))\r\n",
+							"                for g in range(len(k)):\r\n",
+							"                    \r\n",
+							"                    print(f'g is:{g}')\r\n",
+							"                    \r\n",
+							"                    print(f't:{t}')\r\n",
+							"                    print(f'j:{j}')\r\n",
+							"                    print(f'k[g]{k[g]}')\r\n",
+							"                    path = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}/{k[g]}\"\r\n",
+							"                    print(f'path is:{path}')\r\n",
+							"                    files_in_adls3= mssparkutils.fs.ls(path)\r\n",
+							"                    name3 = str(files_in_adls3)\r\n",
+							"                    print('name3 is :')\r\n",
+							"                    print(name3)\r\n",
+							"                    \r\n",
+							"                    match3 = re.search(f'{data_table}/(.*?), name', name3)\r\n",
+							"                    name_value3 = match3.group(1)\r\n",
+							"                    \r\n",
+							"                    print(f'val3 is:{name_value3}')\r\n",
+							"                    split_parts = name_value3.split('/')\r\n",
+							"                    \r\n",
+							"                    split_parts.extend([data_table,data_zone,data_node,data_product,data_format,dest_fol,adls])\r\n",
+							"                    \r\n",
+							"                    result_list .append(split_parts)\r\n",
+							"                    print(f'result_list_in:{result_list}')\r\n",
+							"\r\n",
+							"\r\n",
+							"print(f'result_list_out:{result_list}')   \r\n",
+							"my_schema = StructType([\r\n",
+							"    StructField(\"year\", StringType()),\r\n",
+							"    StructField(\"month\", StringType()),\r\n",
+							"    StructField(\"day\", StringType()),\r\n",
+							"    StructField(\"file_name\", StringType()),\r\n",
+							"    StructField(\"data_table\", StringType()),\r\n",
+							"    StructField(\"data_zone\", StringType()),\r\n",
+							"    StructField(\"data_node\", StringType()),\r\n",
+							"    StructField(\"data_product\", StringType()),\r\n",
+							"    StructField(\"data_format\", StringType()),\r\n",
+							"    StructField(\"dest_fol\", StringType()),\r\n",
+							"    StructField(\"adls\", StringType()),\r\n",
+							"    # Add more fields as needed\r\n",
+							"])  \r\n",
+							"\r\n",
+							"\r\n",
+							"new_df = spark.createDataFrame(data=result_list,schema=my_schema)\r\n",
+							"new_df= new_df.distinct()\r\n",
+							"#new_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"new_df= new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"\r\n",
+							"\r\n",
+							"from pyspark.sql.functions import lit,col,when\r\n",
+							"ma_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"#net=new_df.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    #my_df = df_with_default\r\n",
+							"    \r\n",
+							"    r_t =  dict_row['record_type']\r\n",
+							"    r_i = dict_row['record_id']\r\n",
+							"    e_i = dict_row['event_id']\r\n",
+							"    new_df = new_df.withColumn('record_type', lit(r_t))\r\n",
+							"    new_df = new_df.withColumn('record_id',lit(r_i))\r\n",
+							"    new_df = new_df.withColumn(\"event_id\",lit(e_i))\r\n",
+							"    new_df = new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"    #df_with_default.show()\r\n",
+							"    ma_list.append(new_df)\r\n",
+							"\r\n",
+							"#df_with_default.show()\r\n",
+							"union_df1 = ma_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in ma_list[1:]:\r\n",
+							"    union_df1 = union_df1.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df1 = union_df1.distinct()\r\n",
+							"union_df1.show(25)\r\n",
+							"            \r\n",
+							"            \r\n",
+							"\r\n",
+							"\r\n",
+							"# In[ ]:\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## core deletion NB code\r\n",
+							"\r\n",
+							"noo1 = len(gg.collect())\r\n",
+							"lis_list = []\r\n",
+							"for i in range(noo1):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    #print(f'i  :{i}')\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    #print(dict_row)\r\n",
+							"    #print(dict_row['record_type'])\r\n",
+							"    #print(dict_row['record_id'])\r\n",
+							"    #union_df1.cache()\r\n",
+							"    union_df_new = union_df1\r\n",
+							"    union_df_new = union_df1.filter((union_df1.record_type == dict_row['record_type']) & (union_df1.record_id == dict_row['record_id']))\r\n",
+							"    print('first union_df')\r\n",
+							"    union_df_new.show()\r\n",
+							"    ma_rows = union_df_new.collect()\r\n",
+							"    print(f'union_ne_df count:{union_df_new.count()}')\r\n",
+							"    if union_df_new.count() > 0:\r\n",
+							"        #print(union_df1.count())\r\n",
+							"        for p in range(union_df_new.count()):\r\n",
+							"            print(f'p is:{p}') \r\n",
+							"            print('pre union df')\r\n",
+							"            #union_df_new.show()\r\n",
+							"            #ma_rows = union_df_new.collect()\r\n",
+							"            my_rows = ma_rows[p]\r\n",
+							"            print(f'my_rows:{my_rows}')\r\n",
+							"            year = (my_rows[0])\r\n",
+							"            month = (my_rows[1])\r\n",
+							"            day = (my_rows[2])\r\n",
+							"            file_name = (my_rows[3])\r\n",
+							"            data_table = (my_rows[4])\r\n",
+							"            data_zone = (my_rows[5])\r\n",
+							"\r\n",
+							"            record_type = (my_rows[12])\r\n",
+							"            record_id = (my_rows[13])\r\n",
+							"            #print(f'record_id :{record_id}')\r\n",
+							"            event_id =(my_rows[14])\r\n",
+							"            deleted_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/{file_name}'\r\n",
+							"            input_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/*.parquet'\r\n",
+							"            changed_adls_path= f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}/'\r\n",
+							"            output_adls_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}_temp/'\r\n",
+							"            output_file_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}_temp/*.parquet'\r\n",
+							"            print(input_adls_path)\r\n",
+							"            check_df = spark.read.parquet(input_adls_path)\r\n",
+							"            columns = check_df.columns\r\n",
+							"            #print(columns)\r\n",
+							"            if  record_type in columns:\r\n",
+							"                #check_df.show()\r\n",
+							"                count1 = check_df.count()\r\n",
+							"                #print(count1)\r\n",
+							"                \r\n",
+							"                check_df = check_df.filter(col(record_type) != record_id)\r\n",
+							"                print('after filer')\r\n",
+							"                \r\n",
+							"                count2 = check_df.count()\r\n",
+							"                print(count2)\r\n",
+							"                if count1 != count2:\r\n",
+							"                    print('record_found')\r\n",
+							"                    check_df.write.mode(\"overwrite\").parquet(output_adls_path)\r\n",
+							"                    mssparkutils.fs.rm(deleted_adls_path, True)\r\n",
+							"                    files_in_adls3= mssparkutils.fs.ls(output_adls_path)\r\n",
+							"                    name1 = str(files_in_adls3)\r\n",
+							"                    name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                    emp_list = name1.split(',,')\r\n",
+							"                    print(f'name1: {name1}')\r\n",
+							"                    my_str = emp_list[-1]\r\n",
+							"                    print(f'my_str:{my_str}')\r\n",
+							"                    #str_list = my_str.split('/')\r\n",
+							"                    #print(f'str_list:{str_list}')\r\n",
+							"                    match1 = re.search(r'name=([^\\s,]+)', my_str)\r\n",
+							"                    name_value1 = match1.group(1)\r\n",
+							"                    print(f'name_value1:{name_value1}')\r\n",
+							"                    new_path = f'abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year}/{month}/{day}_temp/{name_value1}'\r\n",
+							"                    mssparkutils.fs.mv(new_path, deleted_adls_path)\r\n",
+							"                    mssparkutils.fs.rm(output_adls_path, True)\r\n",
+							"                    union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year) & (col('record_id') == record_id), 'deleted').otherwise(col('status')))\r\n",
+							"                    print('after union')\r\n",
+							"                    union_df_new.show()\r\n",
+							"                else:\r\n",
+							"                    print('record id not found')\r\n",
+							"                    union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year) & (col('record_id') == record_id), 'not found').otherwise(col('status')))\r\n",
+							"                    #union_df_new.show()\r\n",
+							"            else:\r\n",
+							"                print('rrecord_type not found')\r\n",
+							"                union_df_new = union_df_new.withColumn('status', when((col('day') == day) & (col('month') == month) & (col('year') == year), 'not found').otherwise(col('status')))\r\n",
+							"                #print('ddd')\r\n",
+							"                #union_df_new.show()\r\n",
+							"            \r\n",
+							"        union_df_new.show()\r\n",
+							"        lis_list.append(union_df_new)\r\n",
+							"\r\n",
+							"#for i in lis_list:\r\n",
+							"    #i.show()        \r\n",
+							"union_df2 = lis_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"#union_df2.show()\r\n",
+							"for df in lis_list[1:]:\r\n",
+							"    union_df2 = union_df2.union(df)\r\n",
+							"#print('final df:')\r\n",
+							"union_df2 = union_df2.distinct()\r\n",
+							"print('unuion_2')\r\n",
+							"print(union_df2.count())\r\n",
+							"union_df2.show() \r\n",
+							"print('union__end')\r\n",
+							"print('unuion_1')\r\n",
+							"print(union_df1.count())    \r\n",
+							"union_df1.show()\r\n",
+							"print('union_1-end')\r\n",
+							"   \r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"input_adls_path = f'abfss://historical@newadls8434.dfs.core.windows.net/contact/PERSON/2023/10/2/*.parquet'\r\n",
+							"print(input_adls_path)\r\n",
+							"check_df = spark.read.parquet(input_adls_path)"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"check_df.show()"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 3')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "mypool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "b1d38915-d34d-4a22-a5af-3f9e643e0928"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"synapse_widget": {
+						"version": "0.1"
+					},
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+						"name": "mypool",
+						"type": "Spark",
+						"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import os\r\n",
+							"\r\n",
+							"# Get a dictionary of all environment variables\r\n",
+							"env_variables = os.environ\r\n",
+							"\r\n",
+							"# Print all environment variables\r\n",
+							"for key, value in env_variables.items():\r\n",
+							"    print(f\"{key}: {value}\")\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%env AZURE_CLIENT_ID= 98762b41-7741-4eea-9bba-88800a71c9a9\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import os\r\n",
+							"\r\n",
+							"# Check if the environment variables are set\r\n",
+							"client_id = os.environ.get('AZURE_CLIENT_ID')\r\n",
+							"tenant_id = os.environ.get('AZURE_TENANT_ID')\r\n",
+							"client_secret = os.environ.get('AZURE_CLIENT_SECRET')\r\n",
+							"\r\n",
+							"# Print out the values if they are set\r\n",
+							"print(\"Azure Client ID:\", client_id)\r\n",
+							"print(\"Azure Tenant ID:\", tenant_id)\r\n",
+							"print(\"Azure Client Secret:\", client_secret)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install  azure-storage-blob"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install azure-data-tables==12.5.0"
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install azure-cosmosdb-table"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Step 1: Import necessary libraries\r\n",
+							"from azure.storage.blob import BlobServiceClient\r\n",
+							"from azure.data.tables import TableServiceClient\r\n",
+							"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+							"from azure.identity import DefaultAzureCredential\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"new_table = 'newtable123'\r\n",
+							"my_table = 'mytable123'\r\n",
+							"entity_list = []\r\n",
+							"df_list = []\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+							"credential = DefaultAzureCredential()\r\n",
+							"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+							"\r\n",
+							"# Step 3: Create a table in Azure Table Storage\r\n",
+							"table_name = \"kat123table\"\r\n",
+							"table_client = table_service.get_table_client(table_name)\r\n",
+							"table_client.create_table()\r\n",
+							"\r\n",
+							"print(f\"Table '{table_name}' created successfully.\")\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Step 1: Import necessary libraries\r\n",
+							"from azure.storage.blob import BlobServiceClient\r\n",
+							"from azure.data.tables import TableServiceClient\r\n",
+							"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"new_table = 'newtable123'\r\n",
+							"my_table = 'mytable123'\r\n",
+							"entity_list = []\r\n",
+							"df_list = []\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+							"credential = AzureNamedKeyCredential(account_name, account_key)\r\n",
+							"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+							"\r\n",
+							"# Step 3: Create a table in Azure Table Storage\r\n",
+							"table_name = \"lat123table\"\r\n",
+							"table_client = table_service.get_table_client(table_name)\r\n",
+							"table_client.create_table()\r\n",
+							"\r\n",
+							"print(f\"Table '{table_name}' created successfully.\")\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install azure-data-tables"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install azure-identity"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip show python\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import pyspark\r\n",
+							"print(pyspark.__version__)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 14
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from azure.cosmosdb.table.tableservice import TableService\r\n",
+							"from azure.cosmosdb.table.models import Entity\r\n",
+							"from datetime import datetime\r\n",
+							"\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"new_table = 'newtable123'\r\n",
+							"my_table = 'mytable123'\r\n",
+							"entity_list = []\r\n",
+							"df_list = []\r\n",
+							"\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+							"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Define the entity to update\r\n",
+							"entity = [{\r\n",
+							"    'PartitionKey': '20',\r\n",
+							"    'RowKey': '4',\r\n",
+							"    'name': 'rutuja',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"},\r\n",
+							"{\r\n",
+							"    'PartitionKey': '10',\r\n",
+							"    'RowKey': '5',\r\n",
+							"    'name': 'piyush',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"},{\r\n",
+							"    'PartitionKey': '30',\r\n",
+							"    'RowKey': '6',\r\n",
+							"    'name': 'yash',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"}]\r\n",
+							"\r\n",
+							"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+							"    for i in entity:    \r\n",
+							"        table_service.insert_or_merge_entity(table_name, i)\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"def convert_to_empty_df(table_name):\r\n",
+							"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+							"\r\n",
+							"    # Extract and print the properties (column names) from the sample entities\r\n",
+							"    if all_entities:\r\n",
+							"        properties = set()\r\n",
+							"        for entity in all_entities:\r\n",
+							"            properties.update(entity.keys())\r\n",
+							"\r\n",
+							"        print(\"Properties (Column Names):\")\r\n",
+							"        print(properties)\r\n",
+							"    else:\r\n",
+							"        print(\"No entities found in the table.\")\r\n",
+							"\r\n",
+							"\r\n",
+							"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+							"    my_list = list(properties)\r\n",
+							"    print(my_list)\r\n",
+							"    schema = StructType([\r\n",
+							"        StructField(column, StringType(), True) for column in my_list\r\n",
+							"    ])\r\n",
+							"    empty_df = spark.createDataFrame([], schema)\r\n",
+							"    empty_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"def table_to_df(table_name):\r\n",
+							"    all_entities = table_service.query_entities(table_name)\r\n",
+							"    entity_list = []\r\n",
+							"    # Print or process the retrieved entities\r\n",
+							"    for entity in all_entities:\r\n",
+							"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+							"        entity_list.append(entity_dict)\r\n",
+							"\r\n",
+							"    df = spark.createDataFrame(entity_list)\r\n",
+							"\r\n",
+							"    # Show the DataFrame\r\n",
+							"    df.show()\r\n",
+							"    df_list.append(df)\r\n",
+							"new_list =[]\r\n",
+							"filter_condition = \"status eq 'to be deleted'\"\r\n",
+							"def query_table(table_name,filter_condition):\r\n",
+							"    # Execute the query\r\n",
+							"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+							"    #print(f'query result:{query_result}')\r\n",
+							"    #print(type(query_result))\r\n",
+							"\r\n",
+							"    for i in query_result:\r\n",
+							"        print('i is:',i)\r\n",
+							"        new_list.append(i)\r\n",
+							"        print(f'new_list:{new_list}')\r\n",
+							"        df = spark.createDataFrame(query_result)\r\n",
+							"        df.show(truncate=False)\r\n",
+							"\r\n",
+							"\r\n",
+							"    \r\n",
+							"def update_table(df_list,table_name,col_name,col2,ctu):\r\n",
+							"    df = df_list[0]\r\n",
+							"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+							"    data_to_insert = df.collect()\r\n",
+							"    list_of_entities = []\r\n",
+							"    #print(data_to_insert)\r\n",
+							"\r\n",
+							"    for row in data_to_insert:\r\n",
+							"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+							"        entity = {\r\n",
+							"            'PartitionKey': row['PartitionKey'],\r\n",
+							"            'RowKey': row['RowKey'],\r\n",
+							"            'Timestamp': row['Timestamp'],\r\n",
+							"            'etag': row['etag'],\r\n",
+							"            'name': row['name'],\r\n",
+							"            'status': row['status'],\r\n",
+							"            # Add more columns as needed\r\n",
+							"        }\r\n",
+							"        list_of_entities.append(entity)\r\n",
+							"        print(list_of_entities)\r\n",
+							"\r\n",
+							"    my_lis =[]\r\n",
+							"    for row in df.collect():\r\n",
+							"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+							"        row_key_value = row[f'{col_name}']\r\n",
+							"        print(row_key_value)\r\n",
+							"        my_lis.append(row_key_value)\r\n",
+							"\r\n",
+							"    for i in my_lis:\r\n",
+							"        \r\n",
+							"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+							"\r\n",
+							"        # Retrieve entities that match the filter condition\r\n",
+							"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+							"\r\n",
+							"        # Update the desired column in the matching entities\r\n",
+							"        for entity in entities_to_update:\r\n",
+							"            entity[f'{col2}'] = ctu\r\n",
+							"            table_service.update_entity(table_name, entity)\r\n",
+							"        \r\n",
+							"  \r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"#insert_entity(entity,my_table)\r\n",
+							"#insert_entity(entity,new_table)\r\n",
+							"#table_to_df(my_table)\r\n",
+							"\r\n",
+							"\r\n",
+							"#print(len(df_list))\r\n",
+							"#update_table(df_list,new_table,'RowKey','status','found')\r\n",
+							"   \r\n",
+							"\r\n",
+							"    \r\n",
+							"\r\n",
+							" \r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 6
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#fil = \"status eq 'not found'\"\r\n",
+							"filter_condition = \"status eq 'not found'\"\r\n",
+							"query_table(my_table,filter_condition)"
+						],
+						"outputs": [],
+						"execution_count": 80
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"!pip install --upgrade pip\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"!pip --version\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install --upgrade pip"
+						],
+						"outputs": [],
+						"execution_count": 9
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from azure.cosmosdb.table.tableservice import TableService\r\n",
+							"from azure.cosmosdb.table.models import Entity\r\n",
+							"from datetime import datetime\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"new_table = 'newtable123'\r\n",
+							"my_table = 'mytable123'\r\n",
+							"entity_list = []\r\n",
+							"df_list = []\r\n",
+							"\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"table_service = TableService(account_name=account_name, account_key=account_key)\r\n",
+							"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Define the entity to update\r\n",
+							"entity = [{\r\n",
+							"    'PartitionKey': '20',\r\n",
+							"    'RowKey': '4',\r\n",
+							"    'name': 'rutuja',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"},\r\n",
+							"{\r\n",
+							"    'PartitionKey': '10',\r\n",
+							"    'RowKey': '5',\r\n",
+							"    'name': 'piyush',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"},{\r\n",
+							"    'PartitionKey': '30',\r\n",
+							"    'RowKey': '6',\r\n",
+							"    'name': 'yash',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"}]\r\n",
+							"\r\n",
+							"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+							"    for i in entity:    \r\n",
+							"        table_service.insert_or_merge_entity(table_name, i)\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"def convert_to_empty_df(table_name):\r\n",
+							"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+							"\r\n",
+							"    # Extract and print the properties (column names) from the sample entities\r\n",
+							"    if all_entities:\r\n",
+							"        properties = set()\r\n",
+							"        for entity in all_entities:\r\n",
+							"            properties.update(entity.keys())\r\n",
+							"\r\n",
+							"        print(\"Properties (Column Names):\")\r\n",
+							"        print(properties)\r\n",
+							"    else:\r\n",
+							"        print(\"No entities found in the table.\")\r\n",
+							"\r\n",
+							"\r\n",
+							"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+							"    my_list = list(properties)\r\n",
+							"    print(my_list)\r\n",
+							"    schema = StructType([\r\n",
+							"        StructField(column, StringType(), True) for column in my_list\r\n",
+							"    ])\r\n",
+							"    empty_df = spark.createDataFrame([], schema)\r\n",
+							"    empty_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"def table_to_df(table_name):\r\n",
+							"    all_entities = table_service.query_entities(table_name)\r\n",
+							"    entity_list = []\r\n",
+							"    # Print or process the retrieved entities\r\n",
+							"    for entity in all_entities:\r\n",
+							"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+							"        entity_list.append(entity_dict)\r\n",
+							"\r\n",
+							"    df = spark.createDataFrame(entity_list)\r\n",
+							"\r\n",
+							"    # Show the DataFrame\r\n",
+							"    df.show()\r\n",
+							"    df_list.append(df)\r\n",
+							"new_list =[]\r\n",
+							"filter_condition = \"status eq 'to be deleted'\"\r\n",
+							"def query_table(table_name,filter_condition):\r\n",
+							"    # Execute the query\r\n",
+							"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+							"    #print(f'query result:{query_result}')\r\n",
+							"    #print(type(query_result))\r\n",
+							"\r\n",
+							"    for i in query_result:\r\n",
+							"        print('i is:',i)\r\n",
+							"        new_list.append(i)\r\n",
+							"        print(f'new_list:{new_list}')\r\n",
+							"        df = spark.createDataFrame(query_result)\r\n",
+							"        df.show(truncate=False)\r\n",
+							"\r\n",
+							"\r\n",
+							"    \r\n",
+							"def update_table(df_list,table_name,col_name,col2,ctu):\r\n",
+							"    df = df_list[0]\r\n",
+							"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+							"    data_to_insert = df.collect()\r\n",
+							"    list_of_entities = []\r\n",
+							"    #print(data_to_insert)\r\n",
+							"\r\n",
+							"    for row in data_to_insert:\r\n",
+							"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+							"        entity = {\r\n",
+							"            'PartitionKey': row['PartitionKey'],\r\n",
+							"            'RowKey': row['RowKey'],\r\n",
+							"            'Timestamp': row['Timestamp'],\r\n",
+							"            'etag': row['etag'],\r\n",
+							"            'name': row['name'],\r\n",
+							"            'status': row['status']\r\n",
+							"            # Add more columns as needed\r\n",
+							"        }\r\n",
+							"        list_of_entities.append(entity)\r\n",
+							"        print(list_of_entities)\r\n",
+							"\r\n",
+							"    my_lis =[]\r\n",
+							"    for row in df.collect():\r\n",
+							"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+							"        row_key_value = row[f'{col_name}']\r\n",
+							"        print(row_key_value)\r\n",
+							"        my_lis.append(row_key_value)\r\n",
+							"\r\n",
+							"    for i in my_lis:\r\n",
+							"        \r\n",
+							"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+							"\r\n",
+							"        # Retrieve entities that match the filter condition\r\n",
+							"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+							"\r\n",
+							"        # Update the desired column in the matching entities\r\n",
+							"        for entity in entities_to_update:\r\n",
+							"            entity[f'{col2}'] = ctu\r\n",
+							"            table_service.update_entity(table_name, entity)\r\n",
+							"        \r\n",
+							"  \r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"#insert_entity(entity,my_table)\r\n",
+							"#insert_entity(entity,new_table)\r\n",
+							"#table_to_df(my_table)\r\n",
+							"\r\n",
+							"\r\n",
+							"#print(len(df_list))\r\n",
+							"#update_table(df_list,new_table,'RowKey','status','found')\r\n",
+							"   \r\n",
+							"\r\n",
+							"    \r\n",
+							"\r\n",
+							" \r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 36
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from azure.data.tables import TableServiceClient\r\n",
+							"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"access_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"\r\n",
+							"# Construct the endpoint URL\r\n",
+							"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+							"\r\n",
+							"# Create a shared access signature credential\r\n",
+							"credential = AzureNamedKeyCredential(name=account_name,key=access_key)\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"help(AzureNamedKeyCredential)"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from azure.data.tables import TableClient\r\n",
+							"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+							"from datetime import datetime\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"new_table = 'newtable123'\r\n",
+							"my_table = 'mytable123'\r\n",
+							"entity_list = []\r\n",
+							"df_list = []\r\n",
+							"\r\n",
+							"\r\n",
+							"# Construct the endpoint URL\r\n",
+							"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+							"\r\n",
+							"# Create a shared access signature credential\r\n",
+							"credential = AzureNamedKeyCredential(name=account_name,key=access_key)\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+							"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+							"\r\n",
+							"table_client = table_service.get_table_client(new_table)\r\n",
+							"table_client1 = table_service.get_table_client(my_table)\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Define the entity to update\r\n",
+							"entity = [{\r\n",
+							"    'PartitionKey': '20',\r\n",
+							"    'RowKey': '4',\r\n",
+							"    'name': 'rutuja',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"},\r\n",
+							"{\r\n",
+							"    'PartitionKey': '10',\r\n",
+							"    'RowKey': '5',\r\n",
+							"    'name': 'piyush',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"},{\r\n",
+							"    'PartitionKey': '30',\r\n",
+							"    'RowKey': '6',\r\n",
+							"    'name': 'yash',\r\n",
+							"    'Timestamp' : f'{current_timestamp}',\r\n",
+							"    'status' : 'not found'\r\n",
+							"}]\r\n",
+							"\r\n",
+							"def insert_entity(entity,table_name): # Merge the entity (update if exists or create if not)\r\n",
+							"    for i in entity:    \r\n",
+							"        table_service.upsert_entity(table_name, i)\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"def convert_to_empty_df(table_name):\r\n",
+							"    all_entities = table_service.query_entities(table_name) # Get top 5 entities as a sample\r\n",
+							"\r\n",
+							"    # Extract and print the properties (column names) from the sample entities\r\n",
+							"    if all_entities:\r\n",
+							"        properties = set()\r\n",
+							"        for entity in all_entities:\r\n",
+							"            properties.update(entity.keys())\r\n",
+							"\r\n",
+							"        print(\"Properties (Column Names):\")\r\n",
+							"        print(properties)\r\n",
+							"    else:\r\n",
+							"        print(\"No entities found in the table.\")\r\n",
+							"\r\n",
+							"\r\n",
+							"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+							"    my_list = list(properties)\r\n",
+							"    print(my_list)\r\n",
+							"    schema = StructType([\r\n",
+							"        StructField(column, StringType(), True) for column in my_list\r\n",
+							"    ])\r\n",
+							"    empty_df = spark.createDataFrame([], schema)\r\n",
+							"    empty_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"def table_to_df(table_name):\r\n",
+							"    all_entities = table_service.query_entities(table_name)\r\n",
+							"    entity_list = []\r\n",
+							"    # Print or process the retrieved entities\r\n",
+							"    for entity in all_entities:\r\n",
+							"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+							"        entity_list.append(entity_dict)\r\n",
+							"\r\n",
+							"    df = spark.createDataFrame(entity_list)\r\n",
+							"\r\n",
+							"    # Show the DataFrame\r\n",
+							"    df.show()\r\n",
+							"    df_list.append(df)\r\n",
+							"new_list =[]\r\n",
+							"filter_condition = \"status eq 'to be deleted'\"\r\n",
+							"def query_table(table_name,filter_condition):\r\n",
+							"    # Execute the query\r\n",
+							"    query_result = table_service.query_entities(table_name, filter=filter_condition)\r\n",
+							"    #print(f'query result:{query_result}')\r\n",
+							"    #print(type(query_result))\r\n",
+							"\r\n",
+							"    for i in query_result:\r\n",
+							"        print('i is:',i)\r\n",
+							"        new_list.append(i)\r\n",
+							"        print(f'new_list:{new_list}')\r\n",
+							"        df = spark.createDataFrame(query_result)\r\n",
+							"        df.show(truncate=False)\r\n",
+							"\r\n",
+							"\r\n",
+							"    \r\n",
+							"def update_table(df_list,table_name,col_name,col2,ctu):\r\n",
+							"    df = df_list[0]\r\n",
+							"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+							"    data_to_insert = df.collect()\r\n",
+							"    list_of_entities = []\r\n",
+							"    #print(data_to_insert)\r\n",
+							"\r\n",
+							"    for row in data_to_insert:\r\n",
+							"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+							"        entity = {\r\n",
+							"            'PartitionKey': row['PartitionKey'],\r\n",
+							"            'RowKey': row['RowKey'],\r\n",
+							"            'Timestamp': row['Timestamp'],\r\n",
+							"            'etag': row['etag'],\r\n",
+							"            'name': row['name'],\r\n",
+							"            'status': row['status'],\r\n",
+							"            # Add more columns as needed\r\n",
+							"        }\r\n",
+							"        list_of_entities.append(entity)\r\n",
+							"        print(list_of_entities)\r\n",
+							"\r\n",
+							"    my_lis =[]\r\n",
+							"    for row in df.collect():\r\n",
+							"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+							"        row_key_value = row[f'{col_name}']\r\n",
+							"        print(row_key_value)\r\n",
+							"        my_lis.append(row_key_value)\r\n",
+							"\r\n",
+							"    for i in my_lis:\r\n",
+							"        \r\n",
+							"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+							"\r\n",
+							"        # Retrieve entities that match the filter condition\r\n",
+							"        entities_to_update = table_service.query_entities(table_name, filter=filter_condition2)\r\n",
+							"\r\n",
+							"        # Update the desired column in the matching entities\r\n",
+							"        for entity in entities_to_update:\r\n",
+							"            entity[f'{col2}'] = ctu\r\n",
+							"            table_service.update_entity(table_name, entity)\r\n",
+							"        \r\n",
+							"  \r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"insert_entity(entity,my_table)\r\n",
+							"insert_entity(entity,new_table)\r\n",
+							"#table_to_df(my_table)\r\n",
+							"\r\n",
+							"\r\n",
+							"#print(len(df_list))\r\n",
+							"#update_table(df_list,new_table,'RowKey','status','found')\r\n",
+							"   \r\n",
+							"\r\n",
+							"    \r\n",
+							"\r\n",
+							" \r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 23
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from azure.core.credentials import AzureNamedKeyCredential\r\n",
+							"from azure.data.tables import TableServiceClient\r\n",
+							"from azure.data.tables import TableClient\r\n",
+							"from datetime import datetime\r\n",
+							"\r\n",
+							"# Replace these with your Azure Table Storage credentials\r\n",
+							"account_name = 'newadls8434'\r\n",
+							"account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+							"new_table = 'newtable123'\r\n",
+							"my_table = 'mytable123'\r\n",
+							"entity_list = []\r\n",
+							"df_list = []\r\n",
+							"\r\n",
+							"# Create a table service object\r\n",
+							"endpoint = f\"https://{account_name}.table.core.windows.net/\"\r\n",
+							"credential = AzureNamedKeyCredential(account_name, account_key)\r\n",
+							"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
+							"\r\n",
+							"current_timestamp = datetime.timestamp(datetime.now())\r\n",
+							"entity = [{\r\n",
+							"    'PartitionKey': '20',\r\n",
+							"    'RowKey': '4',\r\n",
+							"    'name': 'rutuja',\r\n",
+							"    'stamp' : datetime.now().strftime(\"%Y-%m-%d %I:%M:%S.%f %p\"),\r\n",
+							"    'status' : 'not found'\r\n",
+							"},\r\n",
+							"{\r\n",
+							"    'PartitionKey': '10',\r\n",
+							"    'RowKey': '12',\r\n",
+							"    'name': 'piyush',\r\n",
+							"    'stamp' : datetime.now().strftime(\"%Y-%m-%d %I:%M:%S.%f %p\"),\r\n",
+							"    'status' : 'not found'\r\n",
+							"},{\r\n",
+							"    'PartitionKey': '30',\r\n",
+							"    'RowKey': '6',\r\n",
+							"    'name': 'yash',\r\n",
+							"    'stamp' : datetime.now().strftime('%Y-%m-%d %I:%M:%S.%f %p'),\r\n",
+							"    'status' : 'found'\r\n",
+							"}]\r\n",
+							"def insert_entity1(entity, table_name):\r\n",
+							"    table_client = table_service.get_table_client(table_name)\r\n",
+							"    for i in entity:\r\n",
+							"        table_client.upsert_entity(i)\r\n",
+							"\r\n",
+							"def convert_to_empty_df1(table_name):\r\n",
+							"    table_client = table_service.get_table_client(table_name)\r\n",
+							"    all_entities = table_client.list_entities()\r\n",
+							"\r\n",
+							"    # Extract and print the properties (column names) from the sample entities\r\n",
+							"    if all_entities:\r\n",
+							"        properties = set()\r\n",
+							"        for entity in all_entities:\r\n",
+							"            properties.update(entity.keys())\r\n",
+							"\r\n",
+							"        print(\"Properties (Column Names):\")\r\n",
+							"        print(properties)\r\n",
+							"    else:\r\n",
+							"        print(\"No entities found in the table.\")\r\n",
+							"\r\n",
+							"    from pyspark.sql.types import StructType, StructField, StringType\r\n",
+							"    my_list = list(properties)\r\n",
+							"    print(my_list)\r\n",
+							"    schema = StructType([\r\n",
+							"        StructField(column, StringType(), True) for column in my_list\r\n",
+							"    ])\r\n",
+							"    empty_df = spark.createDataFrame([], schema)\r\n",
+							"    empty_df.show()\r\n",
+							"\r\n",
+							"def table_to_df1(table_name):\r\n",
+							"    table_client = table_service.get_table_client(table_name)\r\n",
+							"    all_entities = table_client.list_entities()\r\n",
+							"        \r\n",
+							"    entity_list = []\r\n",
+							"    # Print or process the retrieved entities\r\n",
+							"    for entity in all_entities:\r\n",
+							"        print(f'all entities: {entity}')\r\n",
+							"        entity_dict = dict(entity)  # Convert Entity object to a dictionary\r\n",
+							"        print(entity_dict)\r\n",
+							"        entity_list.append(entity_dict)\r\n",
+							"    print(f'entity_list:{entity_list}')\r\n",
+							"    df = spark.createDataFrame(entity_list)\r\n",
+							"\r\n",
+							"    # Show the DataFrame\r\n",
+							"    df.show()\r\n",
+							"    return df\r\n",
+							"\r\n",
+							"new_list = []\r\n",
+							"'''\r\n",
+							"#filter_condition = \"status eq 'to be deleted'\"\r\n",
+							"def query_table1(table_name, filter_condition):\r\n",
+							"    table_client = table_service.get_table_client(table_name)\r\n",
+							"    # Execute the query\r\n",
+							"    query_result = table_client.query_entities(query_filter=filter_condition)\r\n",
+							"    print(f'query_result:{query_result}')\r\n",
+							"    for i in query_result:\r\n",
+							"        print('i is:', i)\r\n",
+							"        new_list.append(i)\r\n",
+							"        print(f'new_list:{new_list}')\r\n",
+							"        \r\n",
+							"        df = spark.createDataFrame(query_result)\r\n",
+							"        df.show(truncate=False)'''\r\n",
+							"def query_table1(table_name, filter_condition):\r\n",
+							"    table_client = table_service.get_table_client(table_name)\r\n",
+							"    # Execute the query with pagination\r\n",
+							"    query_result = table_client.query_entities(query_filter=filter_condition)\r\n",
+							"    \r\n",
+							"    # Process each page of results\r\n",
+							"    for page in query_result.by_page():\r\n",
+							"        for entity in page:\r\n",
+							"            print('Entity:', entity)\r\n",
+							"            new_list.append(entity)\r\n",
+							"\r\n",
+							"    # Create DataFrame from the collected entities\r\n",
+							"    df = spark.createDataFrame(new_list)\r\n",
+							"    df.show(truncate=False)\r\n",
+							"\r\n",
+							"def update_table1(df, table_name, col_name, col2, ctu):\r\n",
+							"    table_client = table_service.get_table_client(table_name)\r\n",
+							"\r\n",
+							"    # Convert PySpark DataFrame to a list of dictionaries\r\n",
+							"    data_to_insert = df.collect()\r\n",
+							"    list_of_entities = []\r\n",
+							"    print(f'data_insert:{data_to_insert}')\r\n",
+							"\r\n",
+							"    for row in data_to_insert:\r\n",
+							"        # Assuming your DataFrame columns match your Azure Table Storage columns\r\n",
+							"        entity = {\r\n",
+							"            'PartitionKey': row['PartitionKey'],\r\n",
+							"            'RowKey': row['RowKey'],\r\n",
+							"            'stamp': row['stamp'],\r\n",
+							"            'name': row['name'],\r\n",
+							"            'status': row['status']\r\n",
+							"            # Add more columns as needed\r\n",
+							"        }\r\n",
+							"        list_of_entities.append(entity)\r\n",
+							"        print(list_of_entities)\r\n",
+							"\r\n",
+							"    my_lis = []\r\n",
+							"    for row in df.collect():\r\n",
+							"        #partition_key_value = row['PartitionKey']  # Assuming this column exists in df\r\n",
+							"        row_key_value = row[f'{col_name}']\r\n",
+							"        print(row_key_value)\r\n",
+							"        my_lis.append(row_key_value)\r\n",
+							"\r\n",
+							"    for i in my_lis:\r\n",
+							"        filter_condition2 = f\"{col_name} eq '{i}'\"\r\n",
+							"\r\n",
+							"        # Retrieve entities that match the filter condition\r\n",
+							"        entities_to_update = table_client.query_entities(query_filter=filter_condition2)\r\n",
+							"\r\n",
+							"        # Update the desired column in the matching entities\r\n",
+							"        for entity in entities_to_update:\r\n",
+							"            entity[f'{col2}'] = ctu\r\n",
+							"            table_client.update_entity(entity)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 136
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"insert_entity1(entity,my_table)\r\n",
+							"insert_entity1(entity,new_table)"
+						],
+						"outputs": [],
+						"execution_count": 138
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"fil = \"status eq 'not found'\"\r\n",
+							"query_table1(new_table,fil)"
+						],
+						"outputs": [],
+						"execution_count": 139
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = table_to_df1(my_table)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 140
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"update_table1(df,new_table,'RowKey','status','found')"
+						],
+						"outputs": [],
+						"execution_count": 141
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import re\r\n",
+							"file_path = f\"abfss://config@newadls8434.dfs.core.windows.net/new/data_master_lat.json\"\r\n",
+							"# Read JSON file into an RDD\r\n",
+							"json_rdd = sc.textFile(file_path)\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# Combine JSON strings into a single JSON object or array\r\n",
+							"# If an array is needed:\r\n",
+							"#json_array = \"[\" + ','.join(json_rdd.collect()) + \"]\"\r\n",
+							"json_array =   ','.join(json_rdd.collect())\r\n",
+							"#print(f'json array:{json_array}')\r\n",
+							"modified_string = json_array[3:-3]\r\n",
+							"modified_string = modified_string.replace(',},,{,', '}{')\r\n",
+							"\r\n",
+							"modified_string = modified_string.replace(',,', ',')\r\n",
+							"modified_string = modified_string.replace('://', '#//')\r\n",
+							"\r\n",
+							"#modified_string = '{'+modified_string+'}'\r\n",
+							"#print(f'MS IS:{modified_string}')\r\n",
+							"#split_string = modified_string.split('}{')\r\n",
+							"#print(f'SS  is:{split_string}')\r\n",
+							"\r\n",
+							"list_of_dicts = []\r\n",
+							"for string_elem in split_string:\r\n",
+							"    #print(f'ele is:{string_elem}')\r\n",
+							"    # Assuming the strings represent key-value pairs separated by commas\r\n",
+							"    dict_elem = dict(item.split(':') for item in string_elem.split(','))\r\n",
+							"    list_of_dicts.append(dict_elem)\r\n",
+							"\r\n",
+							"# Display the list of dictionaries\r\n",
+							"for d in list_of_dicts:\r\n",
+							"   print(d)\r\n",
+							"\r\n",
+							"#cleaned_list_of_dicts = [{k.strip('\"'): v.strip('\"') for k, v in d.items()} for d in list_of_dicts]\r\n",
+							"cleaned_list_of_dicts = []\r\n",
+							"for d in list_of_dicts:\r\n",
+							"   cleaned_dict = {re.sub(r'[\"\\']', '', k): re.sub(r'[\"\\']', '', v).replace('#', ':') for k, v in d.items()}\r\n",
+							"   cleaned_list_of_dicts.append(cleaned_dict)\r\n",
+							"print(f'cln lis:{cleaned_list_of_dicts}')\r\n",
+							"\r\n",
+							"df = spark.createDataFrame(cleaned_list_of_dicts)\r\n",
+							"\r\n",
+							"# Show the DataFrame\r\n",
+							"df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"# In[ ]:\r\n",
+							"\r\n",
+							"\r\n",
+							"print('jbb')\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"avro_data = spark.read.format(\"avro\").load(\"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\")"
+						],
+						"outputs": [],
+						"execution_count": 19
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"avro_data.show()"
+						],
+						"outputs": [],
+						"execution_count": 20
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"###########################approach - 1 [least efficient]#############\r\n",
+							"#rows = avro_data.collect()\r\n",
+							"\r\n",
+							"# Convert each Row object to a dictionary and append to a list\r\n",
+							"#dict_list = [row.asDict() for row in rows]\r\n",
+							"\r\n",
+							"############################ approach-2 [efficiency moderate]#############333\r\n",
+							"\r\n",
+							"dict_list = avro_data.rdd.map(lambda row: row.asDict()).collect()\r\n",
+							"\r\n",
+							"############################# approach- 3 [most efficient] but not working############\r\n",
+							"'''\r\n",
+							"def process_partition(iter):\r\n",
+							"    dict_list = []\r\n",
+							"    for row in iter:\r\n",
+							"        dict_list.append(row.asDict())\r\n",
+							"    return dict_list\r\n",
+							"\r\n",
+							"# Convert DataFrame to RDD and apply foreachPartition() with the defined function\r\n",
+							"rdd = avro_data.rdd\r\n",
+							"dict_list = rdd.foreachPartition(process_partition)\r\n",
+							"\r\n",
+							"# Collect the results from foreachPartition() (this is optional and only for demonstration purposes)\r\n",
+							"final_dict_list = dict_list.collect()\r\n",
+							"\r\n",
+							"# Print the list of dictionaries\r\n",
+							"print(final_dict_list)'''\r\n",
+							"# Print the list of dictionaries\r\n",
+							"print(dict_list)"
+						],
+						"outputs": [],
+						"execution_count": 22
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"avro_data.write.format(\"avro\").save(\"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\")"
+						],
+						"outputs": [],
+						"execution_count": 15
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install fastavro"
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import fastavro\r\n",
+							"avro_file_path = \"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\"\r\n",
+							"\r\n",
+							"# List to store the records\r\n",
+							"records_list = []\r\n",
+							"\r\n",
+							"# Open the Avro file and read records\r\n",
+							"with open(avro_file_path, \"rb\") as avro_file:\r\n",
+							"    reader = fastavro.reader(avro_file)\r\n",
+							"    for record in reader:\r\n",
+							"        records_list.append(record)\r\n",
+							"print(records_list)"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from adlfs import AzureBlobFileSystem\r\n",
+							"import fastavro\r\n",
+							"\r\n",
+							"def avro_to_dict(avro_file_path):\r\n",
+							"    # Initialize AzureBlobFileSystem with your ADLS Gen2 account details\r\n",
+							"    fs = AzureBlobFileSystem(account_name='<your-storage-account-name>', account_key='<your-storage-account-key>')\r\n",
+							"\r\n",
+							"    # Open Avro file\r\n",
+							"    with fs.open(avro_file_path, 'rb') as f:\r\n",
+							"        # Read Avro schema\r\n",
+							"        avro_reader = fastavro.reader(f)\r\n",
+							"        schema = avro_reader.schema\r\n",
+							"\r\n",
+							"        # Initialize an empty list to store dictionaries\r\n",
+							"        records = []\r\n",
+							"\r\n",
+							"        # Iterate over Avro records and convert them to dictionaries\r\n",
+							"        for record in avro_reader:\r\n",
+							"            records.append(record)\r\n",
+							"\r\n",
+							"    return records\r\n",
+							"\r\n",
+							"# Specify the path to your Avro file in ADLS Gen2\r\n",
+							"avro_file_path = 'your/adls/gen2/path/file.avro'\r\n",
+							"\r\n",
+							"# Call the function to convert Avro records to list of dictionaries\r\n",
+							"avro_records = avro_to_dict(avro_file_path)\r\n",
+							"\r\n",
+							"# Print the list of dictionaries\r\n",
+							"print(avro_records)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 10
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 4')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "mypool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "ea20d12a-6dde-431f-a6a0-23a91e33e32a"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"synapse_widget": {
+						"version": "0.1"
+					},
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+						"name": "mypool",
+						"type": "Spark",
+						"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"doo =  \"{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}\"\r\n",
+							"#doo = doo.replace('{', '[{')\r\n",
+							"#doo = doo.replace('}', '}]')\r\n",
+							"print(doo)\r\n",
+							"boo = json.loads(doo)\r\n",
+							"\r\n",
+							"print(f'boo:{boo}')\r\n",
+							"print(type(boo))"
+						],
+						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"source": [
+							"## pre-audit NB code\r\n",
+							"from pyspark.sql.functions import col,when,lit\r\n",
+							"import json\r\n",
+							"import re \r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"delete_master = [{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"1\",\r\n",
+							"\"date\" : \"2024-01-01\"\r\n",
+							"},{\r\n",
+							"\"event_id\" : \"12\",\r\n",
+							"\"record_type\" : \"cust\",\r\n",
+							"\"record_id\" : \"7\",\r\n",
+							"\"date\" : \"2024-01-01\",\r\n",
+							"\r\n",
+							"},\r\n",
+							"{\r\n",
+							"\"event_id\" : \"13\",\r\n",
+							"\"record_type\" : \"cust_id\",\r\n",
+							"\"record_id\" : \"9\",\r\n",
+							"\"date\" : \"2024-01-02\",\r\n",
+							"\r\n",
+							"}]\r\n",
+							"\r\n",
+							"gg = spark.createDataFrame(delete_master)\r\n",
+							"gg.show()\r\n",
+							"\r\n",
+							"doo =  \"{\\\"data_node\\\":\\\"IPN\\\",\\\"data_product\\\":\\\"InvolvedParty\\\",\\\"ls_adls_url\\\":\\\"https://newadls8434.dfs.core.windows.net/\\\",\\\"data_zone\\\":\\\"historical\\\",\\\"dest_folder\\\":\\\"contact\\\",\\\"data_table\\\":\\\"PERSON\\\",\\\"record_type\\\":\\\"cust_id\\\",\\\"historical_container\\\":\\\"historical\\\",\\\"config_container\\\":\\\"config\\\",\\\"adls2_account_name\\\":\\\"newadls8434\\\",\\\"audit_folder\\\":\\\"audit\\\",\\\"data_format\\\":\\\"parquet\\\"}\"\r\n",
+							"#doo = doo.replace('{', '[{')\r\n",
+							"#doo = doo.replace('}', '}]')\r\n",
+							"print(doo)\r\n",
+							"boo = json.loads(doo)\r\n",
+							"\r\n",
+							"print(f'boo:{boo}')\r\n",
+							"print(type(boo))\r\n",
+							"\r\n",
+							"bgg = spark.createDataFrame(boo)\r\n",
+							"#bgg.show()\r\n",
+							"display(bgg)\r\n",
+							"\r\n",
+							"import re\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"from pyspark.sql.types import *\r\n",
+							"\r\n",
+							"year_list = []\r\n",
+							"result_list= []\r\n",
+							"month_list = []\r\n",
+							"day_list = []\r\n",
+							"files_list = []\r\n",
+							"new = bgg.count()\r\n",
+							"for i in range(0,new):\r\n",
+							"    year_list = []\r\n",
+							"    year_pre = []\r\n",
+							"    row = bgg.collect()[i]\r\n",
+							"    adls = (row[0])\r\n",
+							"    data_format = (row[3])\r\n",
+							"    data_node = (row[4])\r\n",
+							"    data_product = (row[5])\r\n",
+							"    data_table = (row[6])\r\n",
+							"    data_zone = (row[7])\r\n",
+							"    dest_fol = (row[8])\r\n",
+							"    record_type = (row[11])\r\n",
+							"    files_in_adls= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/\")\r\n",
+							"    name = str(files_in_adls)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    print('name is:'+name)\r\n",
+							"    if len(files_in_adls) > 1 :\r\n",
+							"        name = name.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"        year_pre = name.split(',,')\r\n",
+							"        print(f'year_pre:{year_pre}')\r\n",
+							"    else:\r\n",
+							"        year_pre.append(name)\r\n",
+							"    #print(type(name))\r\n",
+							"    for b in year_pre:\r\n",
+							"        match = re.search(r'name=(\\w+)', b)\r\n",
+							"        name_value = match.group(1)\r\n",
+							"        #print(name_value)\r\n",
+							"        year_list.append(name_value)\r\n",
+							"        #print('year list is :')\r\n",
+							"    print(year_list)\r\n",
+							"    print(f'table_name:{data_table}')\r\n",
+							"\r\n",
+							"    for j in range(len(year_list)):\r\n",
+							"        month_pre = []\r\n",
+							"        month_list = []\r\n",
+							"        pa = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}\"\r\n",
+							"        print(pa)\r\n",
+							"        files_in_adls1= mssparkutils.fs.ls(pa)\r\n",
+							"        print(len(files_in_adls1))\r\n",
+							"        name1 = str(files_in_adls1)\r\n",
+							"        print(f'name1: {name1}')\r\n",
+							"        if len(files_in_adls1) > 1 :\r\n",
+							"            name1 = name1.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"            month_pre = name1.split(',,')\r\n",
+							"        else:\r\n",
+							"            month_pre.append(name1)\r\n",
+							"        print('month_pre is')\r\n",
+							"        print(month_pre)\r\n",
+							"        \r\n",
+							"        for d in month_pre:\r\n",
+							"            #print('d is:'+d)\r\n",
+							"            match1 = re.search(r'name=(\\w+)', d)\r\n",
+							"            name_value1 = match1.group(1)\r\n",
+							"            #print(name_value1)\r\n",
+							"            month_list.append(name_value1)\r\n",
+							"        #print(' month is :')\r\n",
+							"        print(month_list)\r\n",
+							"        \r\n",
+							"        for t in range(len(month_list)):\r\n",
+							"            day_lis_lis = []\r\n",
+							"            day_list=[]\r\n",
+							"            day_pre =[]\r\n",
+							"            files_in_adls2= mssparkutils.fs.ls(f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}\")\r\n",
+							"            name2 = str(files_in_adls2)\r\n",
+							"            print('name2 is:')\r\n",
+							"            print(name2)\r\n",
+							"            if len(files_in_adls2) > 1 :\r\n",
+							"                name2 = name2.replace(\", FileInfo\", \",, FileInfo\")\r\n",
+							"                day_pre = name2.split(',,')\r\n",
+							"            else:\r\n",
+							"                day_pre.append(name2)\r\n",
+							"            print('day_pre')\r\n",
+							"            print(day_pre)\r\n",
+							"            \r\n",
+							"            for s in day_pre:\r\n",
+							"                \r\n",
+							"                match2 = re.search(r'name=(\\w+)', s)\r\n",
+							"                name_value2 = match2.group(1)\r\n",
+							"                print('name_val2')\r\n",
+							"                print(name_value2)\r\n",
+							"                day_list.append(name_value2)\r\n",
+							"            \r\n",
+							"            day_lis_lis.append(day_list )\r\n",
+							"            \r\n",
+							"            print('day_list is')\r\n",
+							"            print(day_lis_lis)\r\n",
+							"            #day_lis_lis = [['2','3']]\r\n",
+							"            for k in day_lis_lis:\r\n",
+							"                print(f'day_lis_lis is:{day_lis_lis}')\r\n",
+							"                print(f'k is:{k}')\r\n",
+							"                print(len(k))\r\n",
+							"                for g in range(len(k)):\r\n",
+							"                    \r\n",
+							"                    print(f'g is:{g}')\r\n",
+							"                    \r\n",
+							"                    print(f't:{t}')\r\n",
+							"                    print(f'j:{j}')\r\n",
+							"                    print(f'k[g]{k[g]}')\r\n",
+							"                    path = f\"abfss://{data_zone}@{adls}.dfs.core.windows.net/{dest_fol}/{data_table}/{year_list[j]}/{month_list[t]}/{k[g]}\"\r\n",
+							"                    print(f'path is:{path}')\r\n",
+							"                    files_in_adls3= mssparkutils.fs.ls(path)\r\n",
+							"                    name3 = str(files_in_adls3)\r\n",
+							"                    print('name3 is :')\r\n",
+							"                    print(name3)\r\n",
+							"                    \r\n",
+							"                    match3 = re.search(f'{data_table}/(.*?), name', name3)\r\n",
+							"                    name_value3 = match3.group(1)\r\n",
+							"                    \r\n",
+							"                    print(f'val3 is:{name_value3}')\r\n",
+							"                    split_parts = name_value3.split('/')\r\n",
+							"                    \r\n",
+							"                    split_parts.extend([data_table,data_zone,data_node,data_product,data_format,dest_fol,adls])\r\n",
+							"                    \r\n",
+							"                    result_list .append(split_parts)\r\n",
+							"                    print(f'result_list_in:{result_list}')\r\n",
+							"\r\n",
+							"\r\n",
+							"print(f'result_list_out:{result_list}')   \r\n",
+							"my_schema = StructType([\r\n",
+							"    StructField(\"year\", StringType()),\r\n",
+							"    StructField(\"month\", StringType()),\r\n",
+							"    StructField(\"day\", StringType()),\r\n",
+							"    StructField(\"file_name\", StringType()),\r\n",
+							"    StructField(\"data_table\", StringType()),\r\n",
+							"    StructField(\"data_zone\", StringType()),\r\n",
+							"    StructField(\"data_node\", StringType()),\r\n",
+							"    StructField(\"data_product\", StringType()),\r\n",
+							"    StructField(\"data_format\", StringType()),\r\n",
+							"    StructField(\"dest_fol\", StringType()),\r\n",
+							"    StructField(\"adls\", StringType()),\r\n",
+							"    # Add more fields as needed\r\n",
+							"])  \r\n",
+							"\r\n",
+							"\r\n",
+							"new_df = spark.createDataFrame(data=result_list,schema=my_schema)\r\n",
+							"new_df= new_df.distinct()\r\n",
+							"#new_df.show()\r\n",
+							"\r\n",
+							"\r\n",
+							"new_df= new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"\r\n",
+							"\r\n",
+							"from pyspark.sql.functions import lit,col,when\r\n",
+							"ma_list = []\r\n",
+							"noo = len(gg.collect())\r\n",
+							"#net=new_df.count()\r\n",
+							"#print(net)\r\n",
+							"for i in range(noo):\r\n",
+							"    row = gg.collect()[i]\r\n",
+							"    print(i)\r\n",
+							"    dict_row = row.asDict()\r\n",
+							"    #my_df = df_with_default\r\n",
+							"    \r\n",
+							"    r_t =  dict_row['record_type']\r\n",
+							"    r_i = dict_row['record_id']\r\n",
+							"    e_i = dict_row['event_id']\r\n",
+							"    new_df = new_df.withColumn('record_type', lit(r_t))\r\n",
+							"    new_df = new_df.withColumn('record_id',lit(r_i))\r\n",
+							"    new_df = new_df.withColumn(\"event_id\",lit(e_i))\r\n",
+							"    new_df = new_df.withColumn(\"status\", lit('to be deleted'))\r\n",
+							"    #df_with_default.show()\r\n",
+							"    ma_list.append(new_df)\r\n",
+							"\r\n",
+							"#df_with_default.show()\r\n",
+							"union_df1 = ma_list[0]  # Initialize with the first DataFrame in the list\r\n",
+							"\r\n",
+							"for df in ma_list[1:]:\r\n",
+							"    union_df1 = union_df1.union(df)\r\n",
+							"print('final df:')\r\n",
+							"union_df1 = union_df1.distinct()\r\n",
+							"union_df1.show(25)\r\n",
+							"            \r\n",
+							"            \r\n",
+							"\r\n",
+							"\r\n",
+							"# In[ ]:\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install pyapacheatlas"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyapacheatlas.core import AtlasEntity,AtlasProcess\r\n",
+							"from pyapacheatlas.core.util import GuidTracker\r\n",
+							"gt = GuidTracker()\r\n",
+							"doo = []\r\n",
+							"inp_name = 'piyush'\r\n",
+							"inp_entitytype = 'dataset'\r\n",
+							"inp_qualified_name = 'jhvhgvujyvui'\r\n",
+							"inp_guid = gt.get_guid()\r\n",
+							"print(inp_guid)\r\n",
+							"doo.append(AtlasEntity(name=inp_name, typeName=inp_entitytype,\r\n",
+							"                       qualified_name=inp_qualified_name, guid=inp_guid))\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"print(doo)"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%pip install azure-identity"
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"'''from azure.identity import DefaultAzureCredential\r\n",
+							"from azure.purview.catalog import PurviewCatalogClient\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"credential = DefaultAzureCredential()\r\n",
+							"purview_account_name = 'mypview7971'\r\n",
+							"\r\n",
+							"client = c(account_name=purview_account_name, credential=credential)'''\r\n",
+							"\r\n",
+							"from azure.identity import ClientSecretCredential\r\n",
+							"from pyapacheatlas.core import PurviewClient\r\n",
+							"\r\n",
+							"# Instantiate the ManagedIdentityCredential\r\n",
+							"#credential = ManagedIdentityCredential(client_id='98762b41-7741-4eea-9bba-88800a71c9a9')\r\n",
+							"\r\n",
+							"# Replace 'https://<your_purview_account_name>.catalog.purview.azure.com' with the appropriate URL\r\n",
+							"purview_account_url = 'https://mypview7971.catalog.purview.azure.com'\r\n",
+							"\r\n",
+							"tenant_id = 'cc57848b-a9cf-4793-b69d-09034803c961'\r\n",
+							"client_id = '3018e9ef-a697-41a8-b3d5-f1d16629ce39'\r\n",
+							"client_secret = 'Al88Q~qvInZhP_XdTI4VwEDUtR_ftc8U2-t5RbgM'\r\n",
+							"\r\n",
+							"# Create the Purview client\r\n",
+							"credential = ClientSecretCredential(tenant_id, client_id, client_secret)\r\n",
+							"\r\n",
+							"client = PurviewClient(purview_account_url, credential)\r\n",
+							"print(client)\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyapacheatlas.core.typedef import (EntityTypeDef,AtlasAttributeDef)\r\n",
+							"process_name = 'synp nb'\r\n",
+							"proc_type = EntityTypeDef(name=process_name,\r\n",
+							"superTypes=[\"process\"],\r\n",
+							"attributesDefs=[AtlasAttributeDef(\"columnMapping\"),\r\n",
+							"                AtlasAttributeDef(\"HardCodedColumns\"),\r\n",
+							"                AtlasAttributeDef(\"Delta_Tables\"),\r\n",
+							"                AtlasAttributeDef(\"Global_Temp_Views_or_Tables\"),\r\n",
+							"                AtlasAttributeDef(\"Intermediate_Temp_Views_or_Tables\"),\r\n",
+							"                AtlasAttributeDef(\"JoinConditions\")])\r\n",
+							"\r\n",
+							"print(proc_type)\r\n",
+							"\r\n",
+							"client.upload_typedefs(entityDefs=[proc_type],force_update=True)"
+						],
+						"outputs": [],
+						"execution_count": 6
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from azure.identity import ClientSecretCredential\r\n",
+							"from pyapacheatlas.core import PurviewClient\r\n",
+							"\r\n",
+							"# Define the Azure Purview account name\r\n",
+							"purview_account_name = 'mypview7971'\r\n",
+							"\r\n",
+							"# Define the URL of the Azure Purview account\r\n",
+							"purview_account_url = f'https://{purview_account_name}.catalog.purview.azure.com'\r\n",
+							"\r\n",
+							"# Define the Azure AD tenant ID, client ID, and client secret\r\n",
+							"tenant_id = 'cc57848b-a9cf-4793-b69d-09034803c961'\r\n",
+							"client_id = '3018e9ef-a697-41a8-b3d5-f1d16629ce39'\r\n",
+							"client_secret = 'Al88Q~qvInZhP_XdTI4VwEDUtR_ftc8U2-t5RbgM'\r\n",
+							"\r\n",
+							"# Create the ClientSecretCredential\r\n",
+							"credential = ClientSecretCredential(tenant_id, client_id, client_secret)\r\n",
+							"\r\n",
+							"# Create the Purview client\r\n",
+							"client = PurviewClient(account_name=purview_account_name, credential=credential)\r\n",
+							"\r\n",
+							"# Define and print the entity type definition\r\n",
+							"from pyapacheatlas.core.typedef import EntityTypeDef, AtlasAttributeDef\r\n",
+							"\r\n",
+							"process_name = 'synp nb'\r\n",
+							"proc_type = EntityTypeDef(\r\n",
+							"    name=process_name,\r\n",
+							"    superTypes=[\"process\"],\r\n",
+							"    attributesDefs=[\r\n",
+							"        AtlasAttributeDef(\"columnMapping\"),\r\n",
+							"        AtlasAttributeDef(\"HardCodedColumns\"),\r\n",
+							"        AtlasAttributeDef(\"Delta_Tables\"),\r\n",
+							"        AtlasAttributeDef(\"Global_Temp_Views_or_Tables\"),\r\n",
+							"        AtlasAttributeDef(\"Intermediate_Temp_Views_or_Tables\"),\r\n",
+							"        AtlasAttributeDef(\"JoinConditions\")\r\n",
+							"    ]\r\n",
+							")\r\n",
+							"\r\n",
+							"print(proc_type)\r\n",
+							"\r\n",
+							"# Upload the entity type definition\r\n",
+							"client.upload_typedefs(entityDefs=[proc_type], force_update=True)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 7
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 5')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "mypool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "97613972-95fd-4600-b2c2-2b287b7cfe1f"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/bigDataPools/mypool",
+						"name": "mypool",
+						"type": "Spark",
+						"endpoint": "https://myworkspace7971.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mypool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"data = [(1,'sdcd','dcwdc'),(2,'sdcsdc','cdcsd')]\r\n",
+							"columns = ['id','name','school']\r\n",
+							"df = spark.createDataFrame(data=data,schema=columns)"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Assuming you have a DataFrame called df\r\n",
+							"\r\n",
+							"# Define the path where you want to save the JSON file in ADLS\r\n",
+							"output_path = \"abfss://config@newadls8434.dfs.core.windows.net/new/wvxdhgvd.json\"\r\n",
+							"\r\n",
+							"# Write the DataFrame to a JSON file in ADLS\r\n",
+							"df.write.json(output_path, mode=\"overwrite\")\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/mypool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 5
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.3",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralindia"
+		}
+	]
+}
