@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "16e08cc4-e4dc-4f22-b4d3-98acfad9851f"
+				"spark.autotune.trackingId": "6596bff1-2be6-45bf-b4db-14f974a724ca"
 			}
 		},
 		"metadata": {
@@ -56,7 +56,7 @@
 					"columns = ['id','name','school']\r\n",
 					"df = spark.createDataFrame(data=data,schema=columns)"
 				],
-				"execution_count": 3
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -75,10 +75,28 @@
 					"# Assuming you have a DataFrame called df\r\n",
 					"\r\n",
 					"# Define the path where you want to save the JSON file in ADLS\r\n",
-					"output_path = \"abfss://config@newadls8434.dfs.core.windows.net/new/wvxdhgvd.json\"\r\n",
+					"output_path = \"abfss://config@newadls8434.dfs.core.windows.net/new/\"\r\n",
 					"\r\n",
 					"# Write the DataFrame to a JSON file in ADLS\r\n",
 					"df.write.json(output_path, mode=\"overwrite\")\r\n",
+					""
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					""
 				],
 				"execution_count": null
