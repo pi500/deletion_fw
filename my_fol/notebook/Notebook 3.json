@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "cee97cc8-a5cd-4933-9166-08d0829b8fec"
+				"spark.autotune.trackingId": "da0c323b-0272-4ee6-973b-64745dcf75e4"
 			}
 		},
 		"metadata": {
@@ -73,7 +73,7 @@
 					"    print(f\"{key}: {value}\")\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -93,7 +93,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -122,7 +122,7 @@
 					"print(\"Azure Client Secret:\", client_secret)\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -140,7 +140,7 @@
 				"source": [
 					"%pip install  azure-storage-blob"
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -158,7 +158,7 @@
 				"source": [
 					"%pip install azure-data-tables==12.5.0"
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -221,7 +221,7 @@
 					"print(f\"Table '{table_name}' created successfully.\")\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -265,7 +265,7 @@
 					"print(f\"Table '{table_name}' created successfully.\")\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -301,7 +301,7 @@
 				"source": [
 					"%pip install azure-identity"
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -320,7 +320,7 @@
 					"%pip show python\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -340,7 +340,7 @@
 					"print(pyspark.__version__)\r\n",
 					""
 				],
-				"execution_count": 14
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -534,7 +534,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -554,7 +554,7 @@
 					"filter_condition = \"status eq 'not found'\"\r\n",
 					"query_table(my_table,filter_condition)"
 				],
-				"execution_count": 80
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -573,7 +573,7 @@
 					"!pip install --upgrade pip\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -592,7 +592,7 @@
 					"!pip --version\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -610,7 +610,7 @@
 				"source": [
 					"%pip install --upgrade pip"
 				],
-				"execution_count": 9
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -803,7 +803,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -838,7 +838,7 @@
 					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1056,7 +1056,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1191,7 +1191,7 @@
 					"        for entity in page:\r\n",
 					"            print('Entity:', entity)\r\n",
 					"            new_list.append(entity)\r\n",
-					"\r\n",
+					"    print(new_list)\r\n",
 					"    # Create DataFrame from the collected entities\r\n",
 					"    df = spark.createDataFrame(new_list)\r\n",
 					"    df.show(truncate=False)\r\n",
@@ -1236,7 +1236,7 @@
 					"            table_client.update_entity(entity)\r\n",
 					""
 				],
-				"execution_count": 30
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1255,7 +1255,7 @@
 					"lat_table = 'lat123table'\r\n",
 					"insert_entity1(dict_list,lat_table)"
 				],
-				"execution_count": 40
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1275,7 +1275,7 @@
 					"insert_entity1(entiity,my_table)\r\n",
 					"insert_entity1(entiity,new_table)"
 				],
-				"execution_count": 31
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1294,7 +1294,7 @@
 					"fil = \"status eq 'not found'\"\r\n",
 					"query_table1(new_table,fil)"
 				],
-				"execution_count": 139
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1313,7 +1313,7 @@
 					"df = table_to_df1(my_table)\r\n",
 					""
 				],
-				"execution_count": 140
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1331,7 +1331,7 @@
 				"source": [
 					"update_table1(df,new_table,'RowKey','status','found')"
 				],
-				"execution_count": 141
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1350,7 +1350,7 @@
 					"ist_time_am_pm = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %I:%M %p')\r\n",
 					"print(ist_time_am_pm)"
 				],
-				"execution_count": 14
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1422,7 +1422,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1440,7 +1440,7 @@
 				"source": [
 					"avro_data = spark.read.format(\"avro\").load(\"abfss://config@newadls8434.dfs.core.windows.net/new/my_avro_file.avro\")"
 				],
-				"execution_count": 33
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1458,7 +1458,7 @@
 				"source": [
 					"avro_data.show()"
 				],
-				"execution_count": 34
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1504,7 +1504,7 @@
 					"# Print the list of dictionaries\r\n",
 					"print(dict_list)"
 				],
-				"execution_count": 35
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1522,7 +1522,7 @@
 				"source": [
 					"avro_data.write.format(\"avro\").save(\"abfss://config@newadls8434.dfs.core.windows.net/new/latest\")"
 				],
-				"execution_count": 37
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1540,7 +1540,7 @@
 				"source": [
 					"%pip install fastavro"
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1569,7 +1569,7 @@
 					"        records_list.append(record)\r\n",
 					"print(records_list)"
 				],
-				"execution_count": 32
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1617,7 +1617,7 @@
 					"print(avro_records)\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1668,7 +1668,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 41
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1849,7 +1849,7 @@
 					"            table_client.update_entity(entity)\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1869,7 +1869,217 @@
 					"insert_entity1(entiity,my_table)\r\n",
 					"insert_entity1(entiity,new_table)"
 				],
-				"execution_count": 11
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-identity"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%pip install azure-data-tables==12.5.0"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#from azure.storage.queue import QueueServiceClient\r\n",
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"from azure.core.credentials import AccessToken\r\n",
+					"import time\r\n",
+					"\r\n",
+					"class spoof_token:\r\n",
+					"    def get_token(*args, **kwargs):\r\n",
+					"        # Here you need to provide the appropriate method to get a token for Azure Storage Queues\r\n",
+					"        # Replace the following line with the correct way to retrieve a token\r\n",
+					"        return AccessToken(\r\n",
+					"            token=\"<your_token_here>\",\r\n",
+					"            expires_on=int(time.time()) + 60*10  # some random time in the future\r\n",
+					"        )\r\n",
+					"\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"credential._credential = spoof_token() "
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(credential._credential)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#from azure.storage.queue import QueueServiceClient\r\n",
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"from azure.core.credentials import AccessToken\r\n",
+					"\r\n",
+					"class spoof_token:\r\n",
+					"    def __init__(self):\r\n",
+					"        self.token = self.get_token()\r\n",
+					"    def get_token(*args, **kwargs):\r\n",
+					"        token= AccessToken(\r\n",
+					"            token=mssparkutils.credentials.getToken(audience=\"storage\"),\r\n",
+					"            expires_on=int(time.time())+60*10 # some random time in future... synapse doesn't document how to get the actual time\r\n",
+					"        )\r\n",
+					"        print(7)\r\n",
+					"        print(\"Generated token:\", token.token)\r\n",
+					"        return token\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"credential._credential = spoof_token() # monkey-patch the contents of the private `_credential`\r\n",
+					"\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"# Create a table service object\r\n",
+					"endpoint = f\"https://newadls8434.table.core.windows.net/\"\r\n",
+					"#credential = AzureNamedKeyCredential(account_name, account_key)\r\n",
+					"table_service = TableServiceClient(endpoint=endpoint, credential=credential)"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"current_timestamp= datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %I:%M %p')\r\n",
+					"print(current_timestamp)\r\n",
+					"entiity = [{\r\n",
+					"    'PartitionKey': '20',\r\n",
+					"    'RowKey': '4',\r\n",
+					"    'name': 'rutuja',\r\n",
+					"    'stamp' : str(current_timestamp),\r\n",
+					"    'status' : 'not found'\r\n",
+					"},\r\n",
+					"{\r\n",
+					"    'PartitionKey': '10',\r\n",
+					"    'RowKey': '12',\r\n",
+					"    'name': 'piyush',\r\n",
+					"    'stamp' : str(current_timestamp),\r\n",
+					"    'status' : 'not found'\r\n",
+					"},{\r\n",
+					"    'PartitionKey': '30',\r\n",
+					"    'RowKey': '6',\r\n",
+					"    'name': 'yash',\r\n",
+					"    'stamp' : str(current_timestamp),\r\n",
+					"    'status' : 'found'\r\n",
+					"}]\r\n",
+					"\r\n",
+					"print(entiity)\r\n",
+					"\r\n",
+					"def insert_entity1(entiity, table_name):\r\n",
+					"    print(entiity)\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    for i in entiity:\r\n",
+					"        table_client.upsert_entity(i)"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(credential._credential)"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"insert_entity1(entiity,'lat123table')"
+				],
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
