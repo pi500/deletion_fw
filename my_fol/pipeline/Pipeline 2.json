@@ -21,6 +21,10 @@
 						"referenceName": "AutoResolveIntegrationRuntime",
 						"type": "IntegrationRuntimeReference"
 					},
+					"body": {
+						"value": "{\n    \"parameterValue\": \"@pipeline().parameters.status\"\n}\n",
+						"type": "Expression"
+					},
 					"authentication": {
 						"type": "MSI",
 						"resource": "https://dev.azuresynapse.net/"
@@ -28,6 +32,12 @@
 				}
 			}
 		],
+		"parameters": {
+			"status": {
+				"type": "string",
+				"defaultValue": "deleted"
+			}
+		},
 		"annotations": []
 	}
 }
