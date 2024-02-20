@@ -22,12 +22,8 @@
 						"type": "IntegrationRuntimeReference"
 					},
 					"authentication": {
-						"resource": "https://dev.azuresynapse.net/",
-						"credential": {
-							"referenceName": "Credential1",
-							"type": "CredentialReference"
-						},
-						"type": "UserAssignedManagedIdentity"
+						"type": "MSI",
+						"resource": "https://dev.azuresynapse.net/"
 					}
 				}
 			}
