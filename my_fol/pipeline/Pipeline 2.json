@@ -22,7 +22,7 @@
 						"type": "IntegrationRuntimeReference"
 					},
 					"body": {
-						"parameterValue": "@pipeline().parameter.status"
+						"parameterValue": "@pipeline().parameters.status"
 					},
 					"authentication": {
 						"type": "MSI",
