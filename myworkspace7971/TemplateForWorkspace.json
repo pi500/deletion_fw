@@ -127,8 +127,7 @@
 								"type": "IntegrationRuntimeReference"
 							},
 							"body": {
-								"value": "{\n    \"parameterValue\":\"@pipeline().parameters.status\"\n}\n",
-								"type": "Expression"
+								"parameterValue": "@pipeline().parameter.status"
 							},
 							"authentication": {
 								"type": "MSI",
