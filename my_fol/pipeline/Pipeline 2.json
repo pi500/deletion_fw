@@ -16,15 +16,18 @@
 				"userProperties": [],
 				"typeProperties": {
 					"method": "POST",
-					"url": "https://management.azure.com/subscriptions/7374728e-d82a-4420-8e42-c2f7ef16e4c3/resourceGroups/ind_grp/providers/Microsoft.Synapse/workspaces/myworkspace7971/pipelines/Pipeline1/createRun?api-version=2020-12-01-preview",
+					"url": "https://myws88765.dev.azuresynapse.net/pipelines/Pipeline1/createRun?api-version=2020-12-01",
 					"connectVia": {
 						"referenceName": "AutoResolveIntegrationRuntime",
 						"type": "IntegrationRuntimeReference"
 					},
-					"body": "{hello}",
 					"authentication": {
-						"type": "MSI",
-						"resource": "https://management.azure.com/"
+						"resource": "https://dev.azuresynapse.net/",
+						"credential": {
+							"referenceName": "Credential1",
+							"type": "CredentialReference"
+						},
+						"type": "UserAssignedManagedIdentity"
 					}
 				}
 			}
