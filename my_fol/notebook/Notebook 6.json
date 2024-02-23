@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "fe4a1861-f8a5-481a-b474-53bab1c6d6df"
+				"spark.autotune.trackingId": "aa5b4029-e6c4-4e07-96fb-9f90228f5f8f"
 			}
 		},
 		"metadata": {
@@ -64,7 +64,7 @@
 				"source": [
 					"%pip install azure-data-tables==12.5.0"
 				],
-				"execution_count": 1
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -84,7 +84,7 @@
 					"lat_table = 'lat123table'\r\n",
 					"entity_list = []\r\n",
 					"df_list = []\r\n",
-					"filter_condition = \"status eq 'not found'\"\r\n",
+					"filter_condition = \"status eq 'found'\"\r\n",
 					"update_condition = {\"name\":\"shishir\",\"status\":\"to be deleted\"}\r\n",
 					"\r\n",
 					"# Create a table service object\r\n",
@@ -124,6 +124,26 @@
 					"    table_client = table_service.get_table_client(table_name)\r\n",
 					"    for i in entity:\r\n",
 					"        table_client.upsert_entity(i)\r\n",
+					"def get_latest_PartionKey_RowKey(table_name):\r\n",
+					"    rowkey_list =[]\r\n",
+					"    table_client = table_service.get_table_client(table_name)\r\n",
+					"    entities = table_client.query_entities(query_filter=None, select=None)\r\n",
+					"    sorted_entities = sorted(entities, key=lambda x: x.get(\"PartitionKey\", \"\"),reverse=True)\r\n",
+					"\r\n",
+					"    if sorted_entities:\r\n",
+					"        pk = sorted_entities[0]['PartitionKey']\r\n",
+					"        print(pk)\r\n",
+					"        for i in sorted_entities:\r\n",
+					"            #last_row = sorted_entities[0]\r\n",
+					"            if i[\"PartitionKey\"] == pk:\r\n",
+					"                rowkey_list.append(i['RowKey'])\r\n",
+					"                #print(\"Last row in the table:\", i)\r\n",
+					"    else:\r\n",
+					"        print(\"No rows found in the table.\")\r\n",
+					"    rowKey = max(rowkey_list)\r\n",
+					"    print(rowKey)\r\n",
+					"# Iterate over the results (should only have one result) and do something with it\r\n",
+					"\r\n",
 					"\r\n",
 					"def convert_to_empty_df1(table_name):\r\n",
 					"    table_client = table_service.get_table_client(table_name)\r\n",
@@ -184,11 +204,10 @@
 					"        df.show(truncate=False)'''\r\n",
 					"def query_table1(table_name, filter_condition):\r\n",
 					"    try:\r\n",
-					"        print('1')\r\n",
 					"        create_table(table_name)\r\n",
+					"        print('new table created')\r\n",
 					"\r\n",
 					"    except:\r\n",
-					"        print('2')\r\n",
 					"        table_client = table_service.get_table_client(table_name)\r\n",
 					"    # Execute the query with pagination\r\n",
 					"    query_result = table_client.query_entities(query_filter=filter_condition)\r\n",
@@ -200,8 +219,8 @@
 					"            new_list.append(entity)\r\n",
 					"    print(new_list)\r\n",
 					"    # Create DataFrame from the collected entities\r\n",
-					"    df = spark.createDataFrame(new_list)\r\n",
-					"    df.show(truncate=False)\r\n",
+					"    #df = spark.createDataFrame(new_list)\r\n",
+					"    #df.show(truncate=False)\r\n",
 					"\r\n",
 					"def update_table1(df, table_name, col_name,update_condition):\r\n",
 					"    table_client = table_service.get_table_client(table_name)\r\n",
@@ -245,7 +264,7 @@
 					"                table_client.update_entity(entity)\r\n",
 					""
 				],
-				"execution_count": 28
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -261,9 +280,99 @@
 					}
 				},
 				"source": [
-					"query_table1(my_table,filter_condition)"
+					"query_table1('lostable',filter_condition)"
 				],
-				"execution_count": 29
+				"execution_count": 52
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"get_latest_PartionKey_RowKey(my_table)"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Get the current date\r\n",
+					"#now = datetime.now()\r\n",
+					"\r\n",
+					"# Format the current month and year as mmyyyyy\r\n",
+					"mmyyyyy_format = (datetime.now()).strftime(\"%d%m%Y%H%M%S%f\")\r\n",
+					"\r\n",
+					"print(mmyyyyy_format)\r\n",
+					""
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from datetime import datetime\r\n",
+					"\r\n",
+					"# Get the current date\r\n",
+					"#now = datetime.now()\r\n",
+					"\r\n",
+					"# Format the current month and year as mmyyyyy\r\n",
+					"mmyyyyy_format = (datetime.now()).strftime(\"%d%m%Y%H%M%S%f\")[:-3]\r\n",
+					"\r\n",
+					"print(mmyyyyy_format)\r\n",
+					""
+				],
+				"execution_count": 69
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
