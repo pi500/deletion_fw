@@ -99,7 +99,14 @@
 						{
 							"name": "Web3",
 							"type": "WebActivity",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Wait2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -137,14 +144,7 @@
 						{
 							"name": "Wait2",
 							"type": "Wait",
-							"dependsOn": [
-								{
-									"activity": "Web3",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
 								"waitTimeInSeconds": 10
