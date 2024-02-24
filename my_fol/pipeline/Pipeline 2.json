@@ -92,7 +92,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@or(equals(activity('Web3').output.value[0].status, 'Succeeded'), equals(activity('Web3').output.value[0].status, 'Failed'))\n",
+						"value": "@or(equals(activity('Web3').output.value[0].status, 'Succeeded'), \n    or(equals(activity('Web3').output.value[0].status, 'Failed'), \n        equals(activity('Web3').output.value[0].status, 'Cancelled')))",
 						"type": "Expression"
 					},
 					"activities": [
@@ -147,7 +147,7 @@
 							],
 							"userProperties": [],
 							"typeProperties": {
-								"waitTimeInSeconds": 5
+								"waitTimeInSeconds": 10
 							}
 						}
 					],
