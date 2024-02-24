@@ -92,7 +92,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@or(equals(activity('Web3').output.value[0].status, 'succeeded'), equals(activity('Web3').output.value[0].status, 'failed'))\n",
+						"value": "@or(equals(activity('Web3').output.value[0].status, 'Succeeded'), equals(activity('Web3').output.value[0].status, 'Failed'))\n",
 						"type": "Expression"
 					},
 					"activities": [
@@ -127,7 +127,27 @@
 											]
 										}
 									]
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://dev.azuresynapse.net/"
 								}
+							}
+						},
+						{
+							"name": "Wait2",
+							"type": "Wait",
+							"dependsOn": [
+								{
+									"activity": "Web3",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
 							}
 						}
 					],
@@ -147,7 +167,7 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"waitTimeInSeconds": 100
+					"waitTimeInSeconds": 15
 				}
 			}
 		],
