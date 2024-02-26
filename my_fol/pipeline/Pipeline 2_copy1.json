@@ -14,7 +14,7 @@
 					},
 					"activities": [
 						{
-							"name": "Set variable3",
+							"name": "set_start_time",
 							"type": "SetVariable",
 							"dependsOn": [],
 							"policy": {
@@ -35,7 +35,7 @@
 							"type": "WebActivity",
 							"dependsOn": [
 								{
-									"activity": "Set variable3",
+									"activity": "set_start_time",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -66,7 +66,7 @@
 							}
 						},
 						{
-							"name": "Set variable4",
+							"name": "set_end_time",
 							"type": "SetVariable",
 							"dependsOn": [
 								{
@@ -94,7 +94,7 @@
 							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
-									"activity": "Set variable4",
+									"activity": "set_end_time",
 									"dependencyConditions": [
 										"Succeeded"
 									]

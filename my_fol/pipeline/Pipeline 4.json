@@ -64,7 +64,7 @@
 							"typeProperties": {
 								"method": "POST",
 								"url": {
-									"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,activity('Web_get_pl_status').output.value[0].runId,'/queryPipelineRuns?api-version=2020-12-01')}\n\n\n",
+									"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runId,'/queryPipelineRuns?api-version=2020-12-01')}\n\n\n",
 									"type": "Expression"
 								},
 								"connectVia": {
