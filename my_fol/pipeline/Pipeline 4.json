@@ -43,7 +43,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"method": "POST",
-								"url": "@{concat('https://',@pipeline().parameters.PL_url,'/queryPipelineRuns?api-version=2020-12-01')}",
+								"url": {
+									"value": "@{concat('https://',pipeline().parameters.PL_url,'/queryPipelineRuns?api-version=2020-12-01')}",
+									"type": "Expression"
+								},
 								"connectVia": {
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
@@ -60,7 +63,7 @@
 							"type": "WebActivity",
 							"dependsOn": [
 								{
-									"activity": "Web1",
+									"activity": "get_pipeline_id",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -76,7 +79,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"method": "POST",
-								"url": "@{concat('https://',@pipeline().parameters.PL_url,'/pipelines/',@pipeline().parameters.PL_Name,@pipeline().parameters.Run_Id,'/queryPipelineRuns?api-version=2020-12-01')}",
+								"url": {
+									"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,variables('Run_Id'),'/queryPipelineRuns?api-version=2020-12-01')}\n\n\n",
+									"type": "Expression"
+								},
 								"connectVia": {
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
@@ -97,6 +103,54 @@
 								"authentication": {
 									"type": "MSI",
 									"resource": "https://dev.azuresynapse.net/"
+								}
+							}
+						},
+						{
+							"name": "get_pipeline_id",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Web1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "Run_Id",
+								"value": {
+									"value": "@activity('Web1').output.value[0].runId\n",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set variable1",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Web2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "final_status",
+								"value": {
+									"value": "@activity('Web2').output.value[0].output.value",
+									"type": "Expression"
 								}
 							}
 						}
@@ -132,6 +186,12 @@
 			"url": {
 				"type": "String",
 				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1"
+			},
+			"Run_Id": {
+				"type": "String"
+			},
+			"final_status": {
+				"type": "String"
 			}
 		},
 		"annotations": []
