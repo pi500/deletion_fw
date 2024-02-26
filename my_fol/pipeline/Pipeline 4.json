@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@or(equals(pipeline().parameters.PL_Status, 'Succeeded'), \n    or(equals(pipeline().parameters.PL_Status, 'Failed'), \n        equals(pipeline().parameters.PL_Status, 'Cancelled')))",
+						"value": "@or(equals(activity('Web_get_pl_status').output.value[0].status, 'Succeeded'), \n    or(equals(activity('Web_get_pl_status').output.value[0].status, 'Failed'), \n        equals(activity('Web_get_pl_status').output.value[0].status, 'Cancelled')))",
 						"type": "Expression"
 					},
 					"activities": [
@@ -23,7 +23,7 @@
 							}
 						},
 						{
-							"name": "Web1",
+							"name": "Web_get_pl_status",
 							"type": "WebActivity",
 							"dependsOn": [
 								{
@@ -59,11 +59,11 @@
 							}
 						},
 						{
-							"name": "Web2",
+							"name": "Web_get_final_status",
 							"type": "WebActivity",
 							"dependsOn": [
 								{
-									"activity": "get_pipeline_id",
+									"activity": "Web_get_pl_status",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -80,7 +80,7 @@
 							"typeProperties": {
 								"method": "POST",
 								"url": {
-									"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,variables('Run_Id'),'/queryPipelineRuns?api-version=2020-12-01')}\n\n\n",
+									"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,activity('Web_get_pl_status').output.value[0].runId,'/queryPipelineRuns?api-version=2020-12-01')}\n\n\n",
 									"type": "Expression"
 								},
 								"connectVia": {
@@ -95,7 +95,7 @@
 											"operand": "ActivityName",
 											"operator": "Equals",
 											"values": [
-												"Set variable1"
+												"@pipeline().parameters.Activity_Name"
 											]
 										}
 									]
@@ -107,35 +107,11 @@
 							}
 						},
 						{
-							"name": "get_pipeline_id",
-							"type": "SetVariable",
-							"dependsOn": [
-								{
-									"activity": "Web1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "Run_Id",
-								"value": {
-									"value": "@activity('Web1').output.value[0].runId\n",
-									"type": "Expression"
-								}
-							}
-						},
-						{
 							"name": "Set variable1",
 							"type": "SetVariable",
 							"dependsOn": [
 								{
-									"activity": "Web2",
+									"activity": "Web_get_final_status",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -191,6 +167,9 @@
 				"type": "String"
 			},
 			"final_status": {
+				"type": "String"
+			},
+			"PL_Status": {
 				"type": "String"
 			}
 		},

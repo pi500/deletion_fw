@@ -141,13 +141,18 @@
 				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1/"
 			},
 			"synapse_urls": {
-				"type": "array"
+				"type": "array",
+				"defaultValue": [
+					"myws88765.dev.azuresynapse.net"
+				]
 			},
 			"pl_name": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Pipeline1"
 			},
 			"activity_name": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Set variable1"
 			}
 		},
 		"variables": {
@@ -161,6 +166,9 @@
 				"type": "String"
 			},
 			"final_status": {
+				"type": "String"
+			},
+			"PL_Status": {
 				"type": "String"
 			}
 		},
