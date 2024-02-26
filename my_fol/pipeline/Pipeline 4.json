@@ -49,19 +49,7 @@
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
 								},
-								"body": {
-									"lastUpdatedAfter": "@variables('before')",
-									"lastUpdatedBefore": "@variables('after')",
-									"filters": [
-										{
-											"operand": "PipelineName",
-											"operator": "Equals",
-											"values": [
-												"@pipeline().parameters.PL_Name"
-											]
-										}
-									]
-								},
+								"body": "{\"lastUpdatedAfter\":\"@variables('before')\",\"lastUpdatedBefore\":\"@variables('after')\",\"filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[@pipeline().parameters.PL_Name]}]}",
 								"authentication": {
 									"type": "MSI",
 									"resource": "https://dev.azuresynapse.net/"
@@ -103,7 +91,7 @@
 				"typeProperties": {
 					"method": "POST",
 					"url": {
-						"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runid,'/queryPipelineRuns?api-version=2020-12-01')}\n",
+						"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runid,'/queryActivityruns?api-version=2020-12-01')}\n",
 						"type": "Expression"
 					},
 					"connectVia": {
