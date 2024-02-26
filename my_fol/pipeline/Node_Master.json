@@ -1,5 +1,5 @@
 {
-	"name": "Pipeline 2_copy1",
+	"name": "Node_Master",
 	"properties": {
 		"activities": [
 			{
@@ -105,7 +105,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "Pipeline 4",
+									"referenceName": "Node_get_delete_status",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
