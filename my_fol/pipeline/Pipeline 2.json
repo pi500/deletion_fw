@@ -211,6 +211,12 @@
 			},
 			"UTC_now": {
 				"type": "String"
+			},
+			"current_time": {
+				"type": "String"
+			},
+			"url": {
+				"type": "String"
 			}
 		},
 		"annotations": []
