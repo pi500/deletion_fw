@@ -47,7 +47,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"method": "POST",
-								"url": "https://myws88765.dev.azuresynapse.net/pipelines/Pipeline1/createRun?api-version=2020-12-01",
+								"url": {
+									"value": "@{concat('https://',pipeline().parameters.url,'createRun?api-version=2020-12-01')}",
+									"type": "Expression"
+								},
 								"connectVia": {
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
@@ -121,9 +124,9 @@
 			}
 		],
 		"parameters": {
-			"status": {
+			"url": {
 				"type": "string",
-				"defaultValue": "deleted"
+				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1/"
 			}
 		},
 		"variables": {

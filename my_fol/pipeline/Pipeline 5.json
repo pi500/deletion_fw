@@ -62,7 +62,7 @@
 				"typeProperties": {
 					"method": "POST",
 					"url": {
-						"value": "@{concat(variable))}",
+						"value": "@{concat(variables('url'),'pipelineruns/',pipeline().parameters.url,'/queryActivityruns?api-version=2020-12-01')}",
 						"type": "Expression"
 					},
 					"connectVia": {
@@ -106,12 +106,14 @@
 		],
 		"parameters": {
 			"url": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "5697f13a-7102-4d27-b4af-cae327dde6f7"
 			}
 		},
 		"variables": {
 			"url": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1"
 			}
 		},
 		"annotations": []
