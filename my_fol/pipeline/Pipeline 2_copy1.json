@@ -104,10 +104,6 @@
 								},
 								"waitOnCompletion": true,
 								"parameters": {
-									"PL_Status": {
-										"value": "@activity('Web4').output.value[0].status",
-										"type": "Expression"
-									},
 									"Start_Time": {
 										"value": "@variables('UTC_Before')",
 										"type": "Expression"

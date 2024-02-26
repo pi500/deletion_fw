@@ -43,12 +43,12 @@
 							"userProperties": [],
 							"typeProperties": {
 								"method": "POST",
-								"url": "https://myws88765.dev.azuresynapse.net/queryPipelineRuns?api-version=2020-12-01",
+								"url": "@{concat('https://',@pipeline().parameters.PL_url,'/queryPipelineRuns?api-version=2020-12-01')}",
 								"connectVia": {
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
 								},
-								"body": "{\"lastUpdatedAfter\":\"@pipeline().parameters.Start_Time')\",\"lastUpdatedBefore\":\"@pipeline().parameters.End_Time,\"filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[\"Pipeline1\"]}]}",
+								"body": "{\"lastUpdatedAfter\":\"@pipeline().parameters.Start_Time\",\"lastUpdatedBefore\":\"@pipeline().parameters.End_Time,\"filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[\"@pipeline().parameters.PL_Name\"]}]}",
 								"authentication": {
 									"type": "MSI",
 									"resource": "https://dev.azuresynapse.net/"
@@ -75,10 +75,28 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"url": "https://myws88765.dev.azuresynapse.net/pipelines/Pipeline1/createRun?api-version=2020-12-01",
+								"method": "POST",
+								"url": "@{concat('https://',@pipeline().parameters.PL_url,'/pipelines/',@pipeline().parameters.PL_Name,@pipeline().parameters.Run_Id,'/queryPipelineRuns?api-version=2020-12-01')}",
 								"connectVia": {
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
+								},
+								"body": {
+									"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
+									"lastUpdatedBefore": "@pipeline().parameters.End_Time",
+									"filters": [
+										{
+											"operand": "ActivityName",
+											"operator": "Equals",
+											"values": [
+												"Set variable1"
+											]
+										}
+									]
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://dev.azuresynapse.net/"
 								}
 							}
 						}
@@ -88,13 +106,19 @@
 			}
 		],
 		"parameters": {
-			"PL_Status": {
-				"type": "string"
-			},
 			"Start_Time": {
 				"type": "string"
 			},
 			"End_Time": {
+				"type": "string"
+			},
+			"PL_url": {
+				"type": "string"
+			},
+			"PL_Name": {
+				"type": "string"
+			},
+			"Activity_Name": {
 				"type": "string"
 			}
 		},
@@ -106,7 +130,8 @@
 				"type": "String"
 			},
 			"url": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1"
 			}
 		},
 		"annotations": []
