@@ -41,81 +41,77 @@
 									"resource": "https://dev.azuresynapse.net/"
 								}
 							}
-						},
-						{
-							"name": "Web_get_final_status",
-							"type": "WebActivity",
-							"dependsOn": [
-								{
-									"activity": "Web_get_pl_status",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"method": "POST",
-								"url": {
-									"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runId,'/queryPipelineRuns?api-version=2020-12-01')}\n\n\n",
-									"type": "Expression"
-								},
-								"connectVia": {
-									"referenceName": "AutoResolveIntegrationRuntime",
-									"type": "IntegrationRuntimeReference"
-								},
-								"body": {
-									"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
-									"lastUpdatedBefore": "@pipeline().parameters.End_Time",
-									"filters": [
-										{
-											"operand": "ActivityName",
-											"operator": "Equals",
-											"values": [
-												"@pipeline().parameters.Activity_Name"
-											]
-										}
-									]
-								},
-								"authentication": {
-									"type": "MSI",
-									"resource": "https://dev.azuresynapse.net/"
-								}
-							}
-						},
-						{
-							"name": "Set variable1",
-							"type": "SetVariable",
-							"dependsOn": [
-								{
-									"activity": "Web_get_final_status",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "final_status",
-								"value": {
-									"value": "@activity('Web_get_final_status').output.value[0].output.value",
-									"type": "Expression"
-								}
-							}
 						}
 					],
 					"timeout": "0.12:00:00"
+				}
+			},
+			{
+				"name": "get_final_status",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Until1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": {
+						"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runid,'/queryPipelineRuns?api-version=2020-12-01')}\n",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"body": {
+						"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
+						"lastUpdatedBefore": "@pipeline().parameters.End_Time",
+						"filters": [
+							{
+								"operand": "ActivityName",
+								"operator": "Equals",
+								"values": [
+									"@pipeline().parameters.Activity_Name"
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"name": "get_final_status_var",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "get_final_status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "final_status",
+					"value": {
+						"value": "@activity('Web_get_pl_status').output.value[0].status",
+						"type": "Expression"
+					}
 				}
 			}
 		],
