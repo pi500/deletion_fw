@@ -111,6 +111,18 @@
 									"End_Time": {
 										"value": "@variables('UTC_After')",
 										"type": "Expression"
+									},
+									"PL_url": {
+										"value": "@item()",
+										"type": "Expression"
+									},
+									"PL_Name": {
+										"value": "@pipeline().parameters.pl_name",
+										"type": "Expression"
+									},
+									"Activity_Name": {
+										"value": "@pipeline().parameters.activity_name",
+										"type": "Expression"
 									}
 								}
 							}
@@ -123,6 +135,15 @@
 			"url": {
 				"type": "string",
 				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1/"
+			},
+			"synapse_urls": {
+				"type": "string"
+			},
+			"pl_name": {
+				"type": "string"
+			},
+			"activity_name": {
+				"type": "string"
 			}
 		},
 		"variables": {
@@ -130,6 +151,12 @@
 				"type": "String"
 			},
 			"UTC_After": {
+				"type": "String"
+			},
+			"Run_Id": {
+				"type": "String"
+			},
+			"final_status": {
 				"type": "String"
 			}
 		},
