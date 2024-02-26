@@ -42,6 +42,392 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('workspaceName'), '/Node_Master')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.synapse_urls",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "set_start_time",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "UTC_Before",
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Web4",
+									"description": "{}",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "set_start_time",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "POST",
+										"headers": {},
+										"url": {
+											"value": "@{concat('https://',pipeline().parameters.url,'createRun?api-version=2020-12-01')}",
+											"type": "Expression"
+										},
+										"connectVia": {
+											"referenceName": "AutoResolveIntegrationRuntime",
+											"type": "IntegrationRuntimeReference"
+										},
+										"body": {},
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://dev.azuresynapse.net/"
+										}
+									}
+								},
+								{
+									"name": "set_end_time",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Web4",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "UTC_After",
+										"value": {
+											"value": "@addDays(utcNow(), 2)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Execute Pipeline1",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "set_end_time",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Node_get_delete_status",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"Start_Time": {
+												"value": "@variables('UTC_Before')",
+												"type": "Expression"
+											},
+											"End_Time": {
+												"value": "@variables('UTC_After')",
+												"type": "Expression"
+											},
+											"PL_url": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"PL_Name": {
+												"value": "@pipeline().parameters.pl_name",
+												"type": "Expression"
+											},
+											"Activity_Name": {
+												"value": "@pipeline().parameters.activity_name",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"url": {
+						"type": "string",
+						"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1/"
+					},
+					"synapse_urls": {
+						"type": "array",
+						"defaultValue": [
+							"myws88765.dev.azuresynapse.net"
+						]
+					},
+					"pl_name": {
+						"type": "string",
+						"defaultValue": "Pipeline1"
+					},
+					"activity_name": {
+						"type": "string",
+						"defaultValue": "Set variable1"
+					}
+				},
+				"variables": {
+					"UTC_Before": {
+						"type": "String"
+					},
+					"UTC_After": {
+						"type": "String"
+					},
+					"Run_Id": {
+						"type": "String"
+					},
+					"final_status": {
+						"type": "String"
+					},
+					"PL_Status": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('workspaceId'), '/pipelines/Node_get_delete_status')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Node_get_delete_status')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Until1",
+						"type": "Until",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@or(equals(activity('Web_get_pl_status').output.value[0].status, 'Succeeded'), \n    or(equals(activity('Web_get_pl_status').output.value[0].status, 'Failed'), \n        equals(activity('Web_get_pl_status').output.value[0].status, 'Cancelled')))",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Web_get_pl_status",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Wait1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "POST",
+										"headers": {},
+										"url": {
+											"value": "@{concat('https://',pipeline().parameters.PL_url,'/queryPipelineRuns?api-version=2020-12-01')}",
+											"type": "Expression"
+										},
+										"connectVia": {
+											"referenceName": "AutoResolveIntegrationRuntime",
+											"type": "IntegrationRuntimeReference"
+										},
+										"body": {
+											"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
+											"lastUpdatedBefore": "@pipeline().parameters.End_Time",
+											"filters": [
+												{
+													"operand": "PipelineName",
+													"operator": "Equals",
+													"values": [
+														"@pipeline().parameters.PL_Name"
+													]
+												}
+											]
+										},
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://dev.azuresynapse.net/"
+										}
+									}
+								},
+								{
+									"name": "Wait1",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 15
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					},
+					{
+						"name": "get_final_status",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Until1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": {
+								"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runid,'/queryActivityruns?api-version=2020-12-01')}\n",
+								"type": "Expression"
+							},
+							"connectVia": {
+								"referenceName": "AutoResolveIntegrationRuntime",
+								"type": "IntegrationRuntimeReference"
+							},
+							"body": {
+								"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
+								"lastUpdatedBefore": "@pipeline().parameters.End_Time",
+								"filters": [
+									{
+										"operand": "ActivityName",
+										"operator": "Equals",
+										"values": [
+											"@pipeline().parameters.Activity_Name"
+										]
+									}
+								]
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://dev.azuresynapse.net/"
+							}
+						}
+					},
+					{
+						"name": "get_final_status_var",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "get_final_status",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "final_status",
+							"value": {
+								"value": "@activity('get_final_status').output.value[0].output.value",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"Start_Time": {
+						"type": "string"
+					},
+					"End_Time": {
+						"type": "string"
+					},
+					"PL_url": {
+						"type": "string"
+					},
+					"PL_Name": {
+						"type": "string"
+					},
+					"Activity_Name": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"UTC_before": {
+						"type": "String"
+					},
+					"UTC_after": {
+						"type": "String"
+					},
+					"final_status": {
+						"type": "String"
+					},
+					"before": {
+						"type": "String"
+					},
+					"after": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Pipeline 1_copy1')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -335,392 +721,6 @@
 						"type": "String"
 					},
 					"PL_Status": {
-						"type": "String"
-					},
-					"before": {
-						"type": "String"
-					},
-					"after": {
-						"type": "String"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Pipeline 2_copy1')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@pipeline().parameters.synapse_urls",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "set_start_time",
-									"type": "SetVariable",
-									"dependsOn": [],
-									"policy": {
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "UTC_Before",
-										"value": {
-											"value": "@utcNow()",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "Web4",
-									"description": "{}",
-									"type": "WebActivity",
-									"dependsOn": [
-										{
-											"activity": "set_start_time",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"method": "POST",
-										"headers": {},
-										"url": {
-											"value": "@{concat('https://',pipeline().parameters.url,'createRun?api-version=2020-12-01')}",
-											"type": "Expression"
-										},
-										"connectVia": {
-											"referenceName": "AutoResolveIntegrationRuntime",
-											"type": "IntegrationRuntimeReference"
-										},
-										"body": {},
-										"authentication": {
-											"type": "MSI",
-											"resource": "https://dev.azuresynapse.net/"
-										}
-									}
-								},
-								{
-									"name": "set_end_time",
-									"type": "SetVariable",
-									"dependsOn": [
-										{
-											"activity": "Web4",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "UTC_After",
-										"value": {
-											"value": "@addDays(utcNow(), 2)",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "set_end_time",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "Pipeline 4",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"Start_Time": {
-												"value": "@variables('UTC_Before')",
-												"type": "Expression"
-											},
-											"End_Time": {
-												"value": "@variables('UTC_After')",
-												"type": "Expression"
-											},
-											"PL_url": {
-												"value": "@item()",
-												"type": "Expression"
-											},
-											"PL_Name": {
-												"value": "@pipeline().parameters.pl_name",
-												"type": "Expression"
-											},
-											"Activity_Name": {
-												"value": "@pipeline().parameters.activity_name",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"url": {
-						"type": "string",
-						"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1/"
-					},
-					"synapse_urls": {
-						"type": "array",
-						"defaultValue": [
-							"myws88765.dev.azuresynapse.net"
-						]
-					},
-					"pl_name": {
-						"type": "string",
-						"defaultValue": "Pipeline1"
-					},
-					"activity_name": {
-						"type": "string",
-						"defaultValue": "Set variable1"
-					}
-				},
-				"variables": {
-					"UTC_Before": {
-						"type": "String"
-					},
-					"UTC_After": {
-						"type": "String"
-					},
-					"Run_Id": {
-						"type": "String"
-					},
-					"final_status": {
-						"type": "String"
-					},
-					"PL_Status": {
-						"type": "String"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
-				"[concat(variables('workspaceId'), '/pipelines/Pipeline 4')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Pipeline 4')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "Until1",
-						"type": "Until",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@or(equals(activity('Web_get_pl_status').output.value[0].status, 'Succeeded'), \n    or(equals(activity('Web_get_pl_status').output.value[0].status, 'Failed'), \n        equals(activity('Web_get_pl_status').output.value[0].status, 'Cancelled')))",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Web_get_pl_status",
-									"type": "WebActivity",
-									"dependsOn": [
-										{
-											"activity": "Wait1",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"method": "POST",
-										"headers": {},
-										"url": {
-											"value": "@{concat('https://',pipeline().parameters.PL_url,'/queryPipelineRuns?api-version=2020-12-01')}",
-											"type": "Expression"
-										},
-										"connectVia": {
-											"referenceName": "AutoResolveIntegrationRuntime",
-											"type": "IntegrationRuntimeReference"
-										},
-										"body": {
-											"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
-											"lastUpdatedBefore": "@pipeline().parameters.End_Time",
-											"filters": [
-												{
-													"operand": "PipelineName",
-													"operator": "Equals",
-													"values": [
-														"@pipeline().parameters.PL_Name"
-													]
-												}
-											]
-										},
-										"authentication": {
-											"type": "MSI",
-											"resource": "https://dev.azuresynapse.net/"
-										}
-									}
-								},
-								{
-									"name": "Wait1",
-									"type": "Wait",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"waitTimeInSeconds": 15
-									}
-								}
-							],
-							"timeout": "0.12:00:00"
-						}
-					},
-					{
-						"name": "get_final_status",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "Until1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "POST",
-							"headers": {},
-							"url": {
-								"value": "@{concat('https://',pipeline().parameters.PL_url,'/pipelines/',pipeline().parameters.PL_Name,'/pipelineruns/',activity('Web_get_pl_status').output.value[0].runid,'/queryActivityruns?api-version=2020-12-01')}\n",
-								"type": "Expression"
-							},
-							"connectVia": {
-								"referenceName": "AutoResolveIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							},
-							"body": {
-								"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
-								"lastUpdatedBefore": "@pipeline().parameters.End_Time",
-								"filters": [
-									{
-										"operand": "ActivityName",
-										"operator": "Equals",
-										"values": [
-											"@pipeline().parameters.Activity_Name"
-										]
-									}
-								]
-							},
-							"authentication": {
-								"type": "MSI",
-								"resource": "https://dev.azuresynapse.net/"
-							}
-						}
-					},
-					{
-						"name": "get_final_status_var",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "get_final_status",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "final_status",
-							"value": {
-								"value": "@activity('get_final_status').output.value[0].output.value",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"Start_Time": {
-						"type": "string"
-					},
-					"End_Time": {
-						"type": "string"
-					},
-					"PL_url": {
-						"type": "string"
-					},
-					"PL_Name": {
-						"type": "string"
-					},
-					"Activity_Name": {
-						"type": "string"
-					}
-				},
-				"variables": {
-					"UTC_before": {
-						"type": "String"
-					},
-					"UTC_after": {
-						"type": "String"
-					},
-					"final_status": {
 						"type": "String"
 					},
 					"before": {
