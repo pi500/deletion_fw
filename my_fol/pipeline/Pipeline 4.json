@@ -5,7 +5,14 @@
 			{
 				"name": "Until1",
 				"type": "Until",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Set variable2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
@@ -35,7 +42,7 @@
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
 								},
-								"body": "{\"lastUpdatedAfter\":\"@pipeline().parameters.Start_Time\",\"lastUpdatedBefore\":\"@pipeline().parameters.End_Time,\"filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[\"@pipeline().parameters.PL_Name\"]}]}",
+								"body": "{\"lastUpdatedAfter\":\"@variables('after')\",\"lastUpdatedBefore\":\"@variables('after')\",filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[\"@pipeline().parameters.PL_Name\"]}]}",
 								"authentication": {
 									"type": "MSI",
 									"resource": "https://dev.azuresynapse.net/"
@@ -113,6 +120,47 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "before",
+					"value": {
+						"value": "@pipeline().parameters.Start_Time",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set variable2",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "after",
+					"value": {
+						"value": "@pipeline().parameters.End_Time",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -140,6 +188,12 @@
 				"type": "String"
 			},
 			"final_status": {
+				"type": "String"
+			},
+			"before": {
+				"type": "String"
+			},
+			"after": {
 				"type": "String"
 			}
 		},
