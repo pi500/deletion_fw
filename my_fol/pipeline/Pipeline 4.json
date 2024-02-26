@@ -49,7 +49,19 @@
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
 								},
-								"body": "{\"lastUpdatedAfter\":\"@variables('before')\",\"lastUpdatedBefore\":\"@variables('after')\",\"filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[@pipeline().parameters.PL_Name]}]}",
+								"body": {
+									"lastUpdatedAfter": "@variables('before')",
+									"lastUpdatedBefore": "@variables('after')",
+									"filters": [
+										{
+											"operand": "PipelineName",
+											"operator": "Equals",
+											"values": [
+												"@pipeline().parameters.PL_Name"
+											]
+										}
+									]
+								},
 								"authentication": {
 									"type": "MSI",
 									"resource": "https://dev.azuresynapse.net/"
