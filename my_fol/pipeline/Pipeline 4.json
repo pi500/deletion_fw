@@ -5,14 +5,7 @@
 			{
 				"name": "Until1",
 				"type": "Until",
-				"dependsOn": [
-					{
-						"activity": "Set variable2",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
@@ -50,8 +43,8 @@
 									"type": "IntegrationRuntimeReference"
 								},
 								"body": {
-									"lastUpdatedAfter": "@variables('before')",
-									"lastUpdatedBefore": "@variables('after')",
+									"lastUpdatedAfter": "@pipeline().parameters.Start_Time",
+									"lastUpdatedBefore": "@pipeline().parameters.End_Time",
 									"filters": [
 										{
 											"operand": "PipelineName",
@@ -149,47 +142,6 @@
 					"variableName": "final_status",
 					"value": {
 						"value": "@activity('get_final_status').output.value[0].output.value",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Set variable1",
-				"type": "SetVariable",
-				"dependsOn": [],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "before",
-					"value": {
-						"value": "@pipeline().parameters.Start_Time",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Set variable2",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Set variable1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "after",
-					"value": {
-						"value": "@pipeline().parameters.End_Time",
 						"type": "Expression"
 					}
 				}
