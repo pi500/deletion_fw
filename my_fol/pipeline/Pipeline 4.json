@@ -23,7 +23,14 @@
 						{
 							"name": "Web_get_pl_status",
 							"type": "WebActivity",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Wait1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -42,11 +49,32 @@
 									"referenceName": "AutoResolveIntegrationRuntime",
 									"type": "IntegrationRuntimeReference"
 								},
-								"body": "{\"lastUpdatedAfter\":\"@variables('before')\",\"lastUpdatedBefore\":\"@variables('after')\",filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[@pipeline().parameters.PL_Name]}]}",
+								"body": {
+									"lastUpdatedAfter": "@variables('before')",
+									"lastUpdatedBefore": "@variables('after')",
+									"filters": [
+										{
+											"operand": "PipelineName",
+											"operator": "Equals",
+											"values": [
+												"@pipeline().parameters.PL_Name"
+											]
+										}
+									]
+								},
 								"authentication": {
 									"type": "MSI",
 									"resource": "https://dev.azuresynapse.net/"
 								}
+							}
+						},
+						{
+							"name": "Wait1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 15
 							}
 						}
 					],
@@ -94,6 +122,10 @@
 								]
 							}
 						]
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://dev.azuresynapse.net/"
 					}
 				}
 			},

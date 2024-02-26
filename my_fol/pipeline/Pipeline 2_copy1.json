@@ -12,6 +12,7 @@
 						"value": "@pipeline().parameters.synapse_urls",
 						"type": "Expression"
 					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "set_start_time",
