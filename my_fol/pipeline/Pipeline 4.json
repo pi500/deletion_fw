@@ -14,25 +14,9 @@
 					},
 					"activities": [
 						{
-							"name": "Wait1",
-							"type": "Wait",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"waitTimeInSeconds": 10
-							}
-						},
-						{
 							"name": "Web_get_pl_status",
 							"type": "WebActivity",
-							"dependsOn": [
-								{
-									"activity": "Wait1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -125,7 +109,7 @@
 							"typeProperties": {
 								"variableName": "final_status",
 								"value": {
-									"value": "@activity('Web2').output.value[0].output.value",
+									"value": "@activity('Web_get_final_status').output.value[0].output.value",
 									"type": "Expression"
 								}
 							}
@@ -159,17 +143,7 @@
 			"UTC_after": {
 				"type": "String"
 			},
-			"url": {
-				"type": "String",
-				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1"
-			},
-			"Run_Id": {
-				"type": "String"
-			},
 			"final_status": {
-				"type": "String"
-			},
-			"PL_Status": {
 				"type": "String"
 			}
 		},
