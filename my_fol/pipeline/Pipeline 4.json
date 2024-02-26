@@ -148,7 +148,7 @@
 				"typeProperties": {
 					"variableName": "final_status",
 					"value": {
-						"value": "@activity('Web_get_pl_status').output.value[0].status",
+						"value": "@activity('get_final_status').output.value[0].output.value",
 						"type": "Expression"
 					}
 				}
