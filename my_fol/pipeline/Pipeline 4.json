@@ -1,0 +1,76 @@
+{
+	"name": "Pipeline 4",
+	"properties": {
+		"activities": [
+			{
+				"name": "Until1",
+				"type": "Until",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@or(equals(pipeline().parameters.PL_Status, 'Succeeded'), \n    or(equals(pipeline().parameters.PL_Status, 'Failed'), \n        equals(pipeline().parameters.PL_Status, 'Cancelled')))",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 10
+							}
+						},
+						{
+							"name": "Web1",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Wait1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://myws88765.dev.azuresynapse.net/queryPipelineRuns?api-version=2020-12-01",
+								"connectVia": {
+									"referenceName": "AutoResolveIntegrationRuntime",
+									"type": "IntegrationRuntimeReference"
+								},
+								"body": "{\"lastUpdatedAfter\":\"@pipeline().parameters.Start_Time')\",\"lastUpdatedBefore\":\"@pipeline().parameters.End_Time,\"filters\":[{\"operand\":\"PipelineName\",\"operator\":\"Equals\",\"values\":[\"Pipeline1\"]}]}",
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://dev.azuresynapse.net/"
+								}
+							}
+						}
+					],
+					"timeout": "0.12:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"PL_Status": {
+				"type": "string"
+			},
+			"Start_Time": {
+				"type": "string"
+			},
+			"End_Time": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
