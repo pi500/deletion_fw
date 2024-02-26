@@ -8,6 +8,10 @@
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.synapse_urls",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "Set variable3",
@@ -137,7 +141,7 @@
 				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1/"
 			},
 			"synapse_urls": {
-				"type": "string"
+				"type": "array"
 			},
 			"pl_name": {
 				"type": "string"
