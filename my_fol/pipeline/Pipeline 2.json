@@ -203,19 +203,35 @@
 			}
 		},
 		"variables": {
-			"UTC_before": {
-				"type": "String"
-			},
-			"UTC_after": {
-				"type": "String"
-			},
 			"UTC_now": {
 				"type": "String"
 			},
 			"current_time": {
 				"type": "String"
 			},
+			"UTC_before": {
+				"type": "String"
+			},
+			"UTC_after": {
+				"type": "String"
+			},
 			"url": {
+				"type": "String",
+				"defaultValue": "myws88765.dev.azuresynapse.net/pipelines/Pipeline1"
+			},
+			"Run_Id": {
+				"type": "String"
+			},
+			"final_status": {
+				"type": "String"
+			},
+			"PL_Status": {
+				"type": "String"
+			},
+			"before": {
+				"type": "String"
+			},
+			"after": {
 				"type": "String"
 			}
 		},
