@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b5965172-7961-4a5f-9824-1e7bdf81eca2"
+				"spark.autotune.trackingId": "5da43205-070e-4b5e-b2a8-3fba2bb105f3"
 			}
 		},
 		"metadata": {
@@ -722,7 +722,7 @@
 				"source": [
 					"print(datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))"
 				],
-				"execution_count": 25
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -748,13 +748,13 @@
 					"sas_token = 'sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2024-03-05T18:42:32Z&st=2024-03-05T10:42:32Z&spr=https&sig=6IPNyFHbxirgYHPWKovhRcuObtISTXZAiht0syomgro%3D'\r\n",
 					"\r\n",
 					"# Define the table name\r\n",
-					"table_name = 'newtable123'\r\n",
+					"table_name = 'mytable123'\r\n",
 					"\r\n",
 					"# Define the entity properties to be updated\r\n",
 					"entity = {\r\n",
 					"    \"PartitionKey\": \"10\",  # Replace with the appropriate partition key\r\n",
-					"    \"RowKey\": \"1\",  # Replace with the appropriate row key\r\n",
-					"    \"status\": \"deleted\"  # New value for the 'name' column\r\n",
+					"    \"RowKey\": \"32\",  # Replace with the appropriate row key\r\n",
+					"    \"status\": \" not deleted\"  # New value for the 'name' column\r\n",
 					"}\r\n",
 					"\r\n",
 					"# Define the URL for the update operation\r\n",
@@ -782,7 +782,7 @@
 					"    print(f\"An error occurred: {e}\")\r\n",
 					""
 				],
-				"execution_count": 35
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -891,9 +891,9 @@
 					"\r\n",
 					"# Define the entity properties to be updated\r\n",
 					"entity = {\r\n",
-					"    \"PartitionKey\": \"10\",  # Replace with the appropriate partition key\r\n",
-					"    \"RowKey\": \"12\",  # Replace with the appropriate row key\r\n",
-					"    \"status\": \"not deleted\"  # New value for the 'name' column\r\n",
+					"    \"PartitionKey\": \"30\",  # Replace with the appropriate partition key\r\n",
+					"    \"RowKey\": \"6\",  # Replace with the appropriate row key\r\n",
+					"    \"status\": \"not found\"  # New value for the 'name' column\r\n",
 					"}\r\n",
 					"\r\n",
 					"# Define the URL for the update operation\r\n",
@@ -937,9 +937,72 @@
 					}
 				},
 				"source": [
+					"####using MSI authentication ###\r\n",
+					"from azure.identity import ManagedIdentityCredential\r\n",
+					"from azure.core.credentials import AccessToken\r\n",
+					"import time\r\n",
+					"import requests\r\n",
+					"import datetime\r\n",
+					"\r\n",
+					"# Define the Azure Table Storage account name\r\n",
+					"storage_account_name = 'newadls8434'\r\n",
+					"\r\n",
+					"# Define the table name\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Define the entity properties to be updated\r\n",
+					"entity = {\r\n",
+					"    #\"PartitionKey\": \"20\",  # Replace with the appropriate partition key\r\n",
+					"    #\"RowKey\": \"4\",  # Replace with the appropriate row key\r\n",
+					"    \"name\": \"shishir\",\r\n",
+					"    \"status\": \"deleted\"  # New value for the 'name' column\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Define the URL for the update operation\r\n",
+					"url = f\"https://{storage_account_name}.table.core.windows.net/{table_name}(name='shishir')\"\r\n",
+					"\r\n",
+					"# Get spoofed token using Managed Identity\r\n",
+					"class SpoofToken:\r\n",
+					"    def get_token(*args, **kwargs):\r\n",
+					"        # Mimic the behavior of AccessToken\r\n",
+					"        return AccessToken(\r\n",
+					"            token=\"<your_spoofed_token_here>\",\r\n",
+					"            expires_on=int(time.time()) + 60*10  # some random time in the future\r\n",
+					"        )\r\n",
+					"\r\n",
+					"# Create an instance of ManagedIdentityCredential\r\n",
+					"credential = ManagedIdentityCredential()\r\n",
+					"\r\n",
+					"# Set the _credential attribute with the SpoofToken instance\r\n",
+					"credential._credential = SpoofToken()\r\n",
+					"\r\n",
+					"# Get access token using Managed Identity\r\n",
+					"access_token = credential.get_token(\"https://storage.azure.com/.default\").token\r\n",
+					"\r\n",
+					"# Define the headers for the request\r\n",
+					"headers = {\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2020-10-02',\r\n",
+					"    'x-ms-date': str(datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')),\r\n",
+					"    'Authorization': f'Bearer {access_token}'\r\n",
+					"}\r\n",
+					"\r\n",
+					"try:\r\n",
+					"    # Send the HTTP PUT request to update the entity\r\n",
+					"    response = requests.put(url, headers=headers, json=entity)\r\n",
+					"    \r\n",
+					"    # Check if the request was successful\r\n",
+					"    if response.status_code == 204:\r\n",
+					"        print(\"Entity updated successfully.\")\r\n",
+					"    else:\r\n",
+					"        print(f\"Failed to update entity. Status code: {response.status_code}\")\r\n",
+					"        print(response.text)  # Print response for debugging\r\n",
+					"        \r\n",
+					"except Exception as e:\r\n",
+					"    print(f\"An error occurred: {e}\")\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 1
 			}
 		]
 	}
