@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d5bdb2fb-f0ca-4cc9-a7b6-cfbeec8e4a49"
+				"spark.autotune.trackingId": "e26da6ac-3745-4337-a05c-4e457f00d4c4"
 			}
 		},
 		"metadata": {
@@ -411,9 +411,378 @@
 					}
 				},
 				"source": [
+					"import requests\r\n",
+					"import datetime\r\n",
+					"import hmac\r\n",
+					"import hashlib\r\n",
+					"import base64\r\n",
+					"import json\r\n",
+					"\r\n",
+					"# Define the Azure Table Storage account name and access key\r\n",
+					"storage_account_name = 'newadls8434'\r\n",
+					"storage_account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"\r\n",
+					"# Define the table name\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Define the entity properties to be updated\r\n",
+					"entity = {\r\n",
+					"    \"PartitionKey\": \"20\",  # Replace with the appropriate partition key\r\n",
+					"    \"RowKey\": \"your_row_key\",  # Replace with the appropriate row key\r\n",
+					"    \"name\": \"piyush\"  # New value for the 'name' column\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Define the URL for the update operation\r\n",
+					"url = f\"https://{storage_account_name}.table.core.windows.net/{table_name}(PartitionKey='{entity['PartitionKey']}',RowKey='{entity['RowKey']}')\"\r\n",
+					"\r\n",
+					"# Generate the Shared Key Signature\r\n",
+					"def generate_shared_key_signature(verb, url, headers):\r\n",
+					"    x_ms_date = headers.get('x-ms-date', datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'))\r\n",
+					"    string_to_sign = f\"{verb}\\n\\n\\n{len(json.dumps(entity))}\\n\\napplication/json\\n\\n\\n\\n\\n\\n\\n{x_ms_date}\\n/{storage_account_name}/{table_name}\"\r\n",
+					"    signature = base64.b64encode(hmac.new(base64.b64decode(storage_account_key), string_to_sign.encode('utf-8'), hashlib.sha256).digest()).decode()\r\n",
+					"    return signature\r\n",
+					"\r\n",
+					"# Define the headers for the request\r\n",
+					"headers = {\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2020-10-02',\r\n",
+					"    'x-ms-date': '2024-03-05T00:00:00Z'  # Replace with the current date/time\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Add the Shared Key Signature to the headers\r\n",
+					"headers['Authorization'] = f'SharedKeyLite {storage_account_name}:{generate_shared_key_signature(\"POST\", url, headers)}'\r\n",
+					"try:    \r\n",
+					"    # Send the HTTP POST request to update the entity\r\n",
+					"    response = requests.post(url, headers=headers, json=entity)\r\n",
+					"\r\n",
+					"except:\r\n",
+					"    raise exception as e\r\n",
+					"'''\r\n",
+					"# Check if the request was successful\r\n",
+					"if response.status_code == 204:\r\n",
+					"    print(\"Entity updated successfully.\")\r\n",
+					"else:\r\n",
+					"    print(f\"Failed to update entity. Status code: {response.status_code}\")\r\n",
+					"    '''\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import datetime\r\n",
+					"import hashlib\r\n",
+					"import hmac\r\n",
+					"import base64\r\n",
+					"\r\n",
+					"# Define the Azure Table Storage account name and access key\r\n",
+					"storage_account_name = 'newadls8434'\r\n",
+					"storage_account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"\r\n",
+					"# Define the table name\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Define the entity properties to be updated\r\n",
+					"entity = {\r\n",
+					"    \"PartitionKey\": \"20\",  # Replace with the appropriate partition key\r\n",
+					"    \"RowKey\": \"4\",  # Replace with the appropriate row key\r\n",
+					"    \"name\": \"piyush\"  # New value for the 'name' column\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Define the URL for the update operation\r\n",
+					"url = f\"https://{storage_account_name}.table.core.windows.net/{table_name}(PartitionKey='{entity['PartitionKey']}',RowKey='{entity['RowKey']}')\"\r\n",
+					"\r\n",
+					"# Generate the Shared Key Signature\r\n",
+					"def generate_shared_key_signature(verb, url, headers):\r\n",
+					"    x_ms_date = headers.get('x-ms-date', datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'))\r\n",
+					"    string_to_sign = f\"{verb}\\n\\n\\n{len(json.dumps(entity))}\\n\\napplication/json\\n\\n\\n\\n\\n\\n\\n{x_ms_date}\\n/{storage_account_name}/{table_name}\"\r\n",
+					"    signature = base64.b64encode(hmac.new(base64.b64decode(storage_account_key), string_to_sign.encode('utf-8'), hashlib.sha256).digest()).decode()\r\n",
+					"    return signature\r\n",
+					"\r\n",
+					"# Define the headers for the request\r\n",
+					"headers = {\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2020-10-02',\r\n",
+					"    'x-ms-date': '2024-03-05T00:00:00Z'  # Replace with the current date/time\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Add the Shared Key Signature to the headers\r\n",
+					"headers['Authorization'] = f'SharedKeyLite {storage_account_name}:{generate_shared_key_signature(\"POST\", url, headers)}'\r\n",
+					"try:\r\n",
+					"    # Send the HTTP POST request to update the entity\r\n",
+					"    response = requests.post(url, headers=headers, json=entity)\r\n",
+					"\r\n",
+					"except Exception as e:\r\n",
+					"        print(e)\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import datetime\r\n",
+					"import hashlib\r\n",
+					"import hmac\r\n",
+					"import base64\r\n",
+					"import json\r\n",
+					"\r\n",
+					"# Define the Azure Table Storage account name and access key\r\n",
+					"storage_account_name = 'newadls8434'\r\n",
+					"storage_account_key = 'C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w=='\r\n",
+					"utc_ow = utc_time = datetime.datetime.utcnow()\r\n",
+					"# Define the table name\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Define the entity properties to be updated\r\n",
+					"entity = {\r\n",
+					"    \"PartitionKey\": \"20\",  # Replace with the appropriate partition key\r\n",
+					"    \"RowKey\": \"4\",  # Replace with the appropriate row key\r\n",
+					"    \"name\": \"piyush\"  # New value for the 'name' column\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Define the URL for the update operation\r\n",
+					"url = f\"https://{storage_account_name}.table.core.windows.net/{table_name}(PartitionKey='{entity['PartitionKey']}',RowKey='{entity['RowKey']}')\"\r\n",
+					"\r\n",
+					"# Generate the Shared Key Signature\r\n",
+					"def generate_shared_key_signature(verb, url, headers):\r\n",
+					"    x_ms_date = headers.get('x-ms-date', datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'))\r\n",
+					"    print(x_ms_date)\r\n",
+					"    string_to_sign = f\"{verb}\\n\\n\\n{len(json.dumps(entity))}\\n\\napplication/json\\n\\n\\n\\n\\n\\n\\n{x_ms_date}\\n/{storage_account_name}/{table_name}\"\r\n",
+					"    #print(string_to_sign)\r\n",
+					"    signature = base64.b64encode(hmac.new(base64.b64decode(storage_account_key.encode()), string_to_sign.encode('utf-8'), hashlib.sha256).digest()).decode()\r\n",
+					"    print(signature)\r\n",
+					"    return signature\r\n",
+					"\r\n",
+					"# Define the headers for the request\r\n",
+					"headers = {\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2020-10-02',\r\n",
+					"    'x-ms-date': str(datetime.datetime.utcnow())  # Replace with the current date/time\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Add the Shared Key Signature to the headers\r\n",
+					"headers['Authorization'] = f'SharedKeyLite {storage_account_name}:{generate_shared_key_signature(\"POST\", url, headers)}'\r\n",
+					"print(headers['Authorization'])\r\n",
+					"\r\n",
+					"try:\r\n",
+					"    # Send the HTTP POST request to update the entity\r\n",
+					"    response = requests.post(url, headers=headers, json=entity)\r\n",
+					"    \r\n",
+					"    # Check if the request was successful\r\n",
+					"    if response.status_code == 204:\r\n",
+					"        print(\"Entity updated successfully.\")\r\n",
+					"    else:\r\n",
+					"        print(f\"Failed to update entity. Status code: {response.status_code}\")\r\n",
+					"        \r\n",
+					"except Exception as e:\r\n",
+					"    print(f\"An error occurred: {e}\")\r\n",
+					""
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import datetime\r\n",
+					"\r\n",
+					"utc_time = datetime.datetime.utcnow()\r\n",
+					"print(utc_time)\r\n",
+					""
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import datetime\r\n",
+					"import hashlib\r\n",
+					"import hmac\r\n",
+					"import base64\r\n",
+					"import json\r\n",
+					"\r\n",
+					"# Define the Azure Table Storage account name and access key\r\n",
+					"storage_account_name = 'newadls8434'\r\n",
+					"storage_account_key = 'DefaultEndpointsProtocol=https;AccountName=newadls8434;AccountKey=C2wgRF7Xn43ECMRQ29X+sL3PdunLo2xRK5jBKuG17ViVSzSSX7JrbIt7f6zAK0ePW81qiHAk1Iec+ASt82yl/w==;EndpointSuffix=core.windows.net'\r\n",
+					"\r\n",
+					"# Define the table name\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Define the entity properties to be updated\r\n",
+					"entity = {\r\n",
+					"    \"PartitionKey\": \"20\",  # Replace with the appropriate partition key\r\n",
+					"    \"RowKey\": \"4\",  # Replace with the appropriate row key\r\n",
+					"    \"name\": \"piyush\"  # New value for the 'name' column\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Define the URL for the update operation\r\n",
+					"url = f\"https://{storage_account_name}.table.core.windows.net/{table_name}(PartitionKey='{entity['PartitionKey']}',RowKey='{entity['RowKey']}')\"\r\n",
+					"\r\n",
+					"# Generate the Shared Key Signature\r\n",
+					"def generate_shared_key_signature(verb, url, headers):\r\n",
+					"    x_ms_date = headers.get('x-ms-date', datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'))\r\n",
+					"    #print(x_ms_date)\r\n",
+					"    string_to_sign = f\"{verb}\\n\\n\\n{len(json.dumps(entity))}\\n\\napplication/json\\n\\n\\n\\n\\n\\n\\n{x_ms_date}\\n/{storage_account_name}/{table_name}\"\r\n",
+					"    print(string_to_sign)\r\n",
+					"    signature = base64.b64encode(hmac.new(base64.b64decode(storage_account_key), string_to_sign.encode('utf-8'), hashlib.sha256).digest()).decode()\r\n",
+					"    print(signature)\r\n",
+					"    return signature\r\n",
+					"\r\n",
+					"# Define the headers for the request\r\n",
+					"headers = {\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2020-10-02',\r\n",
+					"    'x-ms-date': str(datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))  # Replace with the current date/time\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Add the Shared Key Signature to the headers\r\n",
+					"headers['Authorization'] = f'SharedKeyLite {storage_account_name}:{generate_shared_key_signature(\"POST\", url, headers)}'\r\n",
+					"print(headers)\r\n",
+					"\r\n",
+					"try:\r\n",
+					"    # Send the HTTP POST request to update the entity\r\n",
+					"    response = requests.post(url, headers=headers, json=entity)\r\n",
+					"    \r\n",
+					"    # Check if the request was successful\r\n",
+					"    if response.status_code == 204:\r\n",
+					"        print(\"Entity updated successfully.\")\r\n",
+					"    else:\r\n",
+					"        print(f\"Failed to update entity. Status code: {response.status_code}\")\r\n",
+					"        print(response.text)  # Print response for debugging\r\n",
+					"        \r\n",
+					"except Exception as e:\r\n",
+					"    print(f\"An error occurred: {e}\")\r\n",
+					""
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import requests\r\n",
+					"import datetime\r\n",
+					"\r\n",
+					"# Define the Azure Table Storage account name\r\n",
+					"storage_account_name = 'newadls8434'\r\n",
+					"\r\n",
+					"# Define the SAS token\r\n",
+					"sas_token = 'sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2024-03-05T18:42:32Z&st=2024-03-05T10:42:32Z&spr=https&sig=6IPNyFHbxirgYHPWKovhRcuObtISTXZAiht0syomgro%3D'\r\n",
+					"\r\n",
+					"# Define the table name\r\n",
+					"table_name = 'newtable123'\r\n",
+					"\r\n",
+					"# Define the entity properties to be updated\r\n",
+					"entity = {\r\n",
+					"    \"PartitionKey\": \"20\",  # Replace with the appropriate partition key\r\n",
+					"    \"RowKey\": \"4\",  # Replace with the appropriate row key\r\n",
+					"    \"name\": \"piyush\"  # New value for the 'name' column\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Define the URL for the update operation\r\n",
+					"url = f\"https://{storage_account_name}.table.core.windows.net/{table_name}(PartitionKey='{entity['PartitionKey']}',RowKey='{entity['RowKey']}')?{sas_token}\"\r\n",
+					"\r\n",
+					"# Define the headers for the request\r\n",
+					"headers = {\r\n",
+					"    'Content-Type': 'application/json',\r\n",
+					"    'x-ms-version': '2020-10-02',\r\n",
+					"    'x-ms-date': str(datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))  # Replace with the current date/time\r\n",
+					"}\r\n",
+					"\r\n",
+					"try:\r\n",
+					"    # Send the HTTP POST request to update the entity\r\n",
+					"    response = requests.put(url, headers=headers, json=entity)\r\n",
+					"    \r\n",
+					"    # Check if the request was successful\r\n",
+					"    if response.status_code == 204:\r\n",
+					"        print(\"Entity updated successfully.\")\r\n",
+					"    else:\r\n",
+					"        print(f\"Failed to update entity. Status code: {response.status_code}\")\r\n",
+					"        print(response.text)  # Print response for debugging\r\n",
+					"        \r\n",
+					"except Exception as e:\r\n",
+					"    print(f\"An error occurred: {e}\")\r\n",
+					""
+				],
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
